@@ -13,7 +13,6 @@ public class RefereeDTO implements Serializable {
         this.id = referee.getId();
         this.name = referee.getName();
         this.surname = referee.getSurname();
-        this.permissionClass = referee.getPermissionClass().toString();
     }
 
     @Min(2)

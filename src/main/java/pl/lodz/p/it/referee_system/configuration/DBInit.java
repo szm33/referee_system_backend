@@ -19,8 +19,8 @@ public class DBInit implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        accountRepository.save(new Account(5L,"sss",passwordEncoder.encode("123"),true,"ADMIN"));
-        accountRepository.save(new Account(6L,"s",passwordEncoder.encode("1"),true,"USER"));
-        accountRepository.save(new Account(7L,"ss",passwordEncoder.encode("1"),true,"USER"));
+//        accountRepository.save(new Account(5L,"sss",passwordEncoder.encode("123"),true,"ADMIN"));
+//        accountRepository.save(new Account(6L,"s",passwordEncoder.encode("1"),true,"USER"));
+//        accountRepository.save(new Account(7L,"ss",passwordEncoder.encode("1"),true,"USER"));
     }
 }

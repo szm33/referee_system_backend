@@ -49,7 +49,6 @@ public class AuthenticationController {
         account.setUsername(authenticateAccount.getUsername());
         account.setPassword(passwordEncoder.encode(authenticateAccount.getPassword()));
         account.setActive(true);
-        account.setRole("USER");
         accountRepository.save(account);
         return "sukces";
     }

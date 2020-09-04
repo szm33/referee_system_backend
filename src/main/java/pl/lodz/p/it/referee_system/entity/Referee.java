@@ -1,9 +1,10 @@
 package pl.lodz.p.it.referee_system.entity;
 
 import lombok.Data;
-import pl.lodz.p.it.referee_system.entity.enums.PermissionClass;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Entity(name = "referee")
 @Data
@@ -19,9 +20,26 @@ public class Referee {
     @Column(name = "surname", nullable = false)
     private String surname;
 
-    @Column(name = "permission_class")
-    @Enumerated(EnumType.STRING)
-    private PermissionClass permissionClass;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "account_id", referencedColumnName = "id")
+    private Account account;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "role_id", referencedColumnName = "id")
+    private Role role;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "license_id", referencedColumnName = "id")
+    private License license;
+
+    @OneToMany(mappedBy = "referee")
+    private List<MatchFunction> matchFunctions;
+
+    @NotNull
+    @Version
+    @Column
+    private long version;
+
 
 
 
