@@ -1,56 +1,48 @@
 package pl.lodz.p.it.referee_system.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import pl.lodz.p.it.referee_system.dto.AccountDTO;
 import pl.lodz.p.it.referee_system.dto.RefereeDTO;
 import pl.lodz.p.it.referee_system.entity.Referee;
-import pl.lodz.p.it.referee_system.repository.RefereeRepository;
-import pl.lodz.p.it.referee_system.service.AccountServiceImpl;
+import pl.lodz.p.it.referee_system.service.RefereeService;
+import pl.lodz.p.it.referee_system.service.implementation.AccountServiceImpl;
 
 import javax.validation.Valid;
+import java.sql.SQLException;
 import java.util.List;
 
 @RestController
 @RequestMapping("referee")
+@Transactional(propagation = Propagation.NEVER)
 public class RefereeController {
 
     @Autowired
     public PasswordEncoder passwordEncoder;
 
     @Autowired
-    private RefereeRepository refereeRepository;
+    private RefereeService refereeService;
 
     @Autowired
     private AccountServiceImpl accountService;
 
     @GetMapping
     public List<Referee> getAllReferee() {
-        return refereeRepository.findAll();
+            return refereeService.getAllReferees();
     }
 
     @GetMapping("{id}")
     public RefereeDTO getReferee(@PathVariable("id") Long id) {
-
-        return new RefereeDTO(refereeRepository.findById(id).get());
-    }
-
-    @GetMapping("test")
-    public UserDetails getReferee1() {
-        return accountService.loadUserByUsername("sss");
-    }
-
-
-    @GetMapping("test1")
-    public String getReferee11() {
-
-        return "test1";
+        return new RefereeDTO(refereeService.getReferee(id));
     }
 
     @PostMapping
-    public String addReferee(@Valid @RequestBody RefereeDTO refereeDTO) {
-//        refereeRepository.save(refereeDTO);
-        return "OK";
+    public ResponseEntity<AccountDTO> addReferee(@Valid @RequestBody RefereeDTO refereeDTO) {
+        return ResponseEntity.of(null);
     }
 }

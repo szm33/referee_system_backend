@@ -6,8 +6,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,19 +18,22 @@ import org.springframework.web.server.ResponseStatusException;
 import pl.lodz.p.it.referee_system.dto.AccountDTO;
 import pl.lodz.p.it.referee_system.entity.Account;
 import pl.lodz.p.it.referee_system.repository.AccountRepository;
+import pl.lodz.p.it.referee_system.service.AccountService;
 import pl.lodz.p.it.referee_system.utill.TokenUtills;
+
 
 import javax.validation.Valid;
 
 @RestController
-public class AuthenticationController {
+@Transactional(propagation = Propagation.NEVER)
+public class AccountController {
 
     @Autowired
     private AuthenticationManager authenticationManager;
     @Autowired
     private TokenUtills tokenUtills;
     @Autowired
-    private AccountRepository accountRepository;
+    private AccountService accountService;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -49,7 +54,7 @@ public class AuthenticationController {
         account.setUsername(authenticateAccount.getUsername());
         account.setPassword(passwordEncoder.encode(authenticateAccount.getPassword()));
         account.setActive(true);
-        accountRepository.save(account);
+        accountService.registerAccount(account);
         return "sukces";
     }
 
