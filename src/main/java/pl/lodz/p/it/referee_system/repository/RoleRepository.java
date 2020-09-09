@@ -9,4 +9,6 @@ import pl.lodz.p.it.referee_system.entity.Role;
 @Repository
 @Transactional(propagation = Propagation.MANDATORY)
 public interface RoleRepository extends JpaRepository<Role, Long> {
+
+    Role findByName(String name);
 }

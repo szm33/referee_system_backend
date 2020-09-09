@@ -12,6 +12,7 @@ import java.util.List;
 public class Team {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @Column
     private String name;

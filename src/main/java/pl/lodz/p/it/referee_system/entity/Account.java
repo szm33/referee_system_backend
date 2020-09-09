@@ -16,10 +16,12 @@ import java.util.List;
 public class Account implements UserDetails {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     private String username;
     private String password;
-    @Column(name = "is_active")
+    private String email;
+    @Column(name = "is_active", columnDefinition = "boolean default true")
     private boolean isActive;
     @OneToOne(mappedBy = "account")
     private Referee referee;
@@ -31,10 +33,11 @@ public class Account implements UserDetails {
 
     public Account() {
     }
-    public Account(Long id , String username, String password,boolean isActive, Referee referee) {
+    public Account(Long id , String username, String password, String email, boolean isActive, Referee referee) {
         this.id = id;
         this.username = username;
         this.password = password;
+        this.email = email;
         this.isActive = isActive;
         this.referee = referee;
     }

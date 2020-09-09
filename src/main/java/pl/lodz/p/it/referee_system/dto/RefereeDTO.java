@@ -3,24 +3,18 @@ package pl.lodz.p.it.referee_system.dto;
 import lombok.Data;
 import pl.lodz.p.it.referee_system.entity.Referee;
 
-import javax.validation.constraints.Min;
-import java.io.Serializable;
-
 @Data
-public class RefereeDTO implements Serializable {
-
-    public RefereeDTO(Referee referee) {
-        this.id = referee.getId();
-        this.name = referee.getName();
-        this.surname = referee.getSurname();
-    }
-
-    @Min(2)
-    private Long id;
+public class RefereeDTO {
 
     private String name;
-
     private String surname;
+    private String email;
+    private String license;
 
-    private String permissionClass;
+    public RefereeDTO(Referee referee) {
+        this.name = referee.getName();
+        this.surname = referee.getSurname();
+        this.email = referee.getAccount().getEmail();
+        this.license = referee.getLicense().getType();
+    }
 }

@@ -13,6 +13,7 @@ import java.util.List;
 public class Match {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @OneToMany(mappedBy = "match")
     private List<MatchFunction> refereeFunctions = new ArrayList<>();

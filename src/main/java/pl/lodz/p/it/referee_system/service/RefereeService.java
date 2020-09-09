@@ -9,4 +9,6 @@ public interface RefereeService {
     Referee getReferee(Long id);
 
     List<Referee> getAllReferees();
+
+    void addReferee(Referee referee);
 }

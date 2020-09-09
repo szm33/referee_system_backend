@@ -11,28 +11,28 @@ import java.util.List;
 public class Referee {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name")
     private String name;
 
-    @Column(name = "surname", nullable = false)
+    @Column(name = "surname")
     private String surname;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "account_id", referencedColumnName = "id")
     private Account account;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn(name = "role_id", referencedColumnName = "id")
     private Role role;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn(name = "license_id", referencedColumnName = "id")
     private License license;
 
-    @OneToMany(mappedBy = "referee")
+    @OneToMany(mappedBy = "referee", cascade = CascadeType.ALL)
     private List<MatchFunction> matchFunctions;
 
     @NotNull

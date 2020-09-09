@@ -8,13 +8,14 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import pl.lodz.p.it.referee_system.dto.AccountDTO;
+import pl.lodz.p.it.referee_system.dto.RefereeCreateDTO;
 import pl.lodz.p.it.referee_system.dto.RefereeDTO;
 import pl.lodz.p.it.referee_system.entity.Referee;
+import pl.lodz.p.it.referee_system.mapper.RefereeCreateMapper;
 import pl.lodz.p.it.referee_system.service.RefereeService;
 import pl.lodz.p.it.referee_system.service.implementation.AccountServiceImpl;
 
 import javax.validation.Valid;
-import java.sql.SQLException;
 import java.util.List;
 
 @RestController
@@ -28,9 +29,6 @@ public class RefereeController {
     @Autowired
     private RefereeService refereeService;
 
-    @Autowired
-    private AccountServiceImpl accountService;
-
     @GetMapping
     public List<Referee> getAllReferee() {
             return refereeService.getAllReferees();
@@ -42,7 +40,8 @@ public class RefereeController {
     }
 
     @PostMapping
-    public ResponseEntity<AccountDTO> addReferee(@Valid @RequestBody RefereeDTO refereeDTO) {
-        return ResponseEntity.of(null);
+    public ResponseEntity<AccountDTO> addReferee(@Valid @RequestBody RefereeCreateDTO referee) {
+        refereeService.addReferee(RefereeCreateMapper.map(referee));
+        return ResponseEntity.ok(new AccountDTO());
     }
 }
