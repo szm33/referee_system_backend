@@ -13,6 +13,7 @@ import pl.lodz.p.it.referee_system.repository.RoleRepository;
 import pl.lodz.p.it.referee_system.service.RefereeService;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
@@ -28,7 +29,9 @@ public class RefereeServiceImpl implements RefereeService {
     private LicenseRepository licenseRepository;
 
     public Referee getReferee(Long id) {
-        return refereeRepository.findById(id).get();
+
+            return refereeRepository.findById(id).orElseThrow();
+
     }
     public List<Referee> getAllReferees() {
         return refereeRepository.findAll();
@@ -40,5 +43,15 @@ public class RefereeServiceImpl implements RefereeService {
         referee.setRole(roleRepository.findByName("REFEREE"));
         referee.setLicense(licenseRepository.findByType("CANDIDATE"));
         refereeRepository.save(referee);
+    }
+
+    @Override
+    public void editReferee(Referee referee) {
+        Referee refereeEntity = refereeRepository.findById(referee.getId()).orElseThrow();
+        refereeEntity.setName(referee.getName());
+        refereeEntity.setSurname(referee.getSurname());
+        refereeEntity.setLicense(licenseRepository.findByType(referee.getLicense().getType()));
+        refereeEntity.getAccount().setEmail(referee.getAccount().getEmail());
+        refereeRepository.save(refereeEntity);
     }
 }

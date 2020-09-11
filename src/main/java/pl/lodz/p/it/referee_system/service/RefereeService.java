@@ -11,4 +11,6 @@ public interface RefereeService {
     List<Referee> getAllReferees();
 
     void addReferee(Referee referee);
+
+    void editReferee(Referee referee);
 }

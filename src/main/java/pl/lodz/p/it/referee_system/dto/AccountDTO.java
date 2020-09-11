@@ -7,14 +7,14 @@ import pl.lodz.p.it.referee_system.entity.Account;
 public class AccountDTO {
 
     private String username;
-    private String password;
+    private String email;
 
     public AccountDTO() {
     }
 
     public AccountDTO(Account account) {
         this.username = account.getUsername();
-        this.password = account.getPassword();
+        this.email = account.getEmail();
     }
 
 }

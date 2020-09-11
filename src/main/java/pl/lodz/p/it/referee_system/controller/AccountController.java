@@ -6,23 +6,24 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import pl.lodz.p.it.referee_system.dto.AccountAuthenticationDTO;
 import pl.lodz.p.it.referee_system.dto.AccountDTO;
-import pl.lodz.p.it.referee_system.entity.Account;
-import pl.lodz.p.it.referee_system.repository.AccountRepository;
+import pl.lodz.p.it.referee_system.dto.AccountEditDTO;
+import pl.lodz.p.it.referee_system.dto.PasswordDTO;
+import pl.lodz.p.it.referee_system.mapper.AccountMapper;
 import pl.lodz.p.it.referee_system.service.AccountService;
 import pl.lodz.p.it.referee_system.utill.TokenUtills;
 
 
-import javax.validation.Valid;
+import javax.validation.*;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @Transactional(propagation = Propagation.NEVER)
@@ -34,32 +35,14 @@ public class AccountController {
     private TokenUtills tokenUtills;
     @Autowired
     private AccountService accountService;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     @GetMapping("error")
     public String sad(){
         return "error";
     }
 
-    @GetMapping("/")
-    public String sasd(){
-        return "start";
-    }
-
-    @PostMapping("/registration")
-    public String registry(@RequestBody AccountDTO authenticateAccount) {
-        Account account = new Account();
-        account.setId(11L);
-        account.setUsername(authenticateAccount.getUsername());
-        account.setPassword(passwordEncoder.encode(authenticateAccount.getPassword()));
-        account.setActive(true);
-        accountService.registerAccount(account);
-        return "sukces";
-    }
-
     @PostMapping("/login")
-    public ResponseEntity<String> createAuthenticationToken(@Valid @RequestBody AccountDTO authenticateAccount) {
+    public ResponseEntity<String> createAuthenticationToken(@Valid @RequestBody AccountAuthenticationDTO authenticateAccount) {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(authenticateAccount.getUsername(), authenticateAccount.getPassword()));
@@ -70,6 +53,53 @@ public class AccountController {
         final String jwt = tokenUtills.generateToken(authenticateAccount.getUsername());
         tokenUtills.extractExpiration(jwt);
         return new ResponseEntity<>(jwt, HttpStatus.OK);
+    }
+
+    @GetMapping("account")
+    public ResponseEntity<List<AccountDTO>> getAllAccounts() {
+        return ResponseEntity.ok((accountService.getAllAccounts().stream()
+                .map(AccountDTO::new)
+                .collect(Collectors.toList())));
+    }
+
+
+    @GetMapping("account/{id}")
+    public ResponseEntity<AccountDTO> getAccount(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(new AccountDTO(accountService.getAccount(id)));
+    }
+
+    @GetMapping("myaccount")
+    public ResponseEntity<AccountDTO> getMyAccount() {
+        return ResponseEntity.ok(new AccountDTO(accountService.getMyAccount()));
+    }
+    //edycja konta tylko dla wlasciciela edyja reszty danych imie,email,nazwisko ranga dla admina
+    @PutMapping("account")
+    public ResponseEntity<String> editAccount(@Valid @RequestBody AccountEditDTO account) {
+        accountService.editAccount(AccountMapper.map(account));
+        return ResponseEntity.ok("Successfully edited account ");
+    }
+
+    //haslo zmoenia tylko posiadacz
+    @PostMapping("account/password")
+    public ResponseEntity<String> changePassword(@Valid @RequestBody PasswordDTO password) {
+        if(password.getPassword().equals(password.getPasswordConfirmed())) {
+            accountService.changePassword(AccountMapper.map(password));
+            return ResponseEntity.ok("Password changed");
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Password do not match");
+
+    }
+
+    @PostMapping("account/{id}/active")
+    public ResponseEntity<String> changeActiveStatus(@PathVariable Long id) {
+        accountService.changeActiveStatus(id);
+        return ResponseEntity.ok("Active status changed successfully");
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(NoSuchElementException.class)
+    public String noAccountFound() {
+        return "Account not found";
     }
 }
 
