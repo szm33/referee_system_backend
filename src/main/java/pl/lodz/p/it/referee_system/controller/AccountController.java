@@ -6,19 +6,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import pl.lodz.p.it.referee_system.dto.AccountAuthenticationDTO;
-import pl.lodz.p.it.referee_system.dto.AccountDTO;
-import pl.lodz.p.it.referee_system.dto.AccountEditDTO;
-import pl.lodz.p.it.referee_system.dto.PasswordDTO;
+import pl.lodz.p.it.referee_system.dto.*;
 import pl.lodz.p.it.referee_system.mapper.AccountMapper;
 import pl.lodz.p.it.referee_system.service.AccountService;
 import pl.lodz.p.it.referee_system.utill.TokenUtills;
 
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.*;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -42,7 +41,7 @@ public class AccountController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> createAuthenticationToken(@Valid @RequestBody AccountAuthenticationDTO authenticateAccount) {
+    public ResponseEntity<TokenDTO> createAuthenticationToken(@Valid @RequestBody AccountAuthenticationDTO authenticateAccount) {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(authenticateAccount.getUsername(), authenticateAccount.getPassword()));
@@ -52,7 +51,10 @@ public class AccountController {
         }
         final String jwt = tokenUtills.generateToken(authenticateAccount.getUsername());
         tokenUtills.extractExpiration(jwt);
-        return new ResponseEntity<>(jwt, HttpStatus.OK);
+        TokenDTO token = new TokenDTO();
+        token.setToken(jwt);
+        token.setUsername(authenticateAccount.getUsername());
+        return ResponseEntity.ok(token);
     }
 
     @GetMapping("account")
@@ -66,6 +68,14 @@ public class AccountController {
     @GetMapping("account/{id}")
     public ResponseEntity<AccountDTO> getAccount(@PathVariable("id") Long id) {
         return ResponseEntity.ok(new AccountDTO(accountService.getAccount(id)));
+    }
+
+    @Autowired
+    private HttpServletRequest http;
+
+    @GetMapping("locale")
+    public ResponseEntity<StringDTO> getLocale() {
+        return ResponseEntity.ok(new StringDTO(http.getLocale().getLanguage()));
     }
 
     @GetMapping("myaccount")

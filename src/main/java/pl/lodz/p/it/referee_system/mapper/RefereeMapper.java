@@ -14,7 +14,7 @@ public class RefereeMapper {
         referee.setName(refereeDTO.getName());
         referee.setSurname(refereeDTO.getSurname());
         account.setEmail(refereeDTO.getEmail());
-        account.setUsername(refereeDTO.getUserName());
+        account.setUsername(refereeDTO.getUsername());
         referee.setAccount(account);
         return referee;
     }

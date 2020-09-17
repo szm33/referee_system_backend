@@ -16,5 +16,5 @@ public class RefereeCreateDTO implements Serializable {
     @NotEmpty
     private String email;
     @NotEmpty
-    private String userName;
+    private String username;
 }

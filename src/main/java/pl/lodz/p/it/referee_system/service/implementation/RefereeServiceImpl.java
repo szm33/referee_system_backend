@@ -42,6 +42,7 @@ public class RefereeServiceImpl implements RefereeService {
         referee.getAccount().setPassword(passwordEncoder.encode(referee.getSurname()));
         referee.setRole(roleRepository.findByName("REFEREE"));
         referee.setLicense(licenseRepository.findByType("CANDIDATE"));
+        referee.getAccount().setActive(true);
         refereeRepository.save(referee);
     }
 
