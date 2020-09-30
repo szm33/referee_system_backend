@@ -3,6 +3,7 @@ package pl.lodz.p.it.referee_system.configuration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -19,6 +20,7 @@ import pl.lodz.p.it.referee_system.filter.RequestFilter;
 import pl.lodz.p.it.referee_system.service.implementation.AccountServiceImpl;
 
 import java.util.Arrays;
+import java.util.List;
 
 
 @Configuration
@@ -44,7 +46,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable().cors().and()
-                .authorizeRequests().antMatchers("/login").permitAll()
+                .authorizeRequests()
+                .antMatchers("/login").permitAll()
+                .antMatchers("/locale").permitAll()
+                .antMatchers(HttpMethod.POST,"/referee").hasRole("ADMIN")
                 .antMatchers("/referee").hasRole("REFEREE")
                 .anyRequest().authenticated()
                 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
@@ -60,8 +65,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration c = new CorsConfiguration().applyPermitDefaultValues();
+        c.setAllowedMethods(List.of("PUT","GET","POST"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", new CorsConfiguration().applyPermitDefaultValues());
+        source.registerCorsConfiguration("/**", c);
+
         return source;
     }
 }

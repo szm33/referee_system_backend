@@ -12,6 +12,8 @@ public class RefereeDTO {
     private String email;
     private String license;
 
+    public RefereeDTO(){}
+
     public RefereeDTO(Referee referee) {
         this.id = referee.getId();
         this.name = referee.getName();
