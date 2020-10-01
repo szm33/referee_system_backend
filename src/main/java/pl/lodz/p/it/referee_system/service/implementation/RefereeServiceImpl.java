@@ -53,6 +53,7 @@ public class RefereeServiceImpl implements RefereeService {
         refereeEntity.setSurname(referee.getSurname());
         refereeEntity.setLicense(licenseRepository.findByType(referee.getLicense().getType()));
         refereeEntity.getAccount().setEmail(referee.getAccount().getEmail());
+        refereeEntity.setVersion(referee.getVersion());
         refereeRepository.save(refereeEntity);
     }
 }

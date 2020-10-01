@@ -21,7 +21,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.validation.*;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -92,11 +91,13 @@ public class AccountController {
     //haslo zmoenia tylko posiadacz
     @PostMapping("account/password")
     public ResponseEntity<String> changePassword(@Valid @RequestBody PasswordDTO password) {
-        if(password.getPassword().equals(password.getPasswordConfirmed())) {
-            accountService.changePassword(AccountMapper.map(password));
+        try {
+            accountService.changePassword(password);
             return ResponseEntity.ok("Password changed");
         }
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Password do not match");
+        catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Password do not match");
+        }
 
     }
 

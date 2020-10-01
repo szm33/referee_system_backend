@@ -12,10 +12,4 @@ public class AccountMapper {
         account.setEmail(accountDTO.getEmail());
         return account;
     }
-
-    static public Account map(PasswordDTO passwordDTO) {
-        Account account = new Account();
-        account.setPassword(passwordDTO.getPassword());
-        return account;
-    }
 }

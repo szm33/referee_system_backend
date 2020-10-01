@@ -1,6 +1,7 @@
 package pl.lodz.p.it.referee_system.service;
 
 import org.springframework.security.core.userdetails.UserDetailsService;
+import pl.lodz.p.it.referee_system.dto.PasswordDTO;
 import pl.lodz.p.it.referee_system.entity.Account;
 import pl.lodz.p.it.referee_system.entity.Referee;
 
@@ -16,7 +17,7 @@ public interface AccountService extends UserDetailsService {
 
     void editAccount(Account account);
 
-    void changePassword(Account account);
+    void changePassword(PasswordDTO passwordDTO) throws Exception;
 
     void resetPassword(Account account);
 

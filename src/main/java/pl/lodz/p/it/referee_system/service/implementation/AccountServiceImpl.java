@@ -1,6 +1,7 @@
 package pl.lodz.p.it.referee_system.service.implementation;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import pl.lodz.p.it.referee_system.dto.PasswordDTO;
 import pl.lodz.p.it.referee_system.entity.Account;
 import pl.lodz.p.it.referee_system.repository.AccountRepository;
 import pl.lodz.p.it.referee_system.service.AccountService;
@@ -46,22 +48,29 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Account getMyAccount() {
         //wyciagamy z tokena user name i bierzemy konto po loginie
-        return null;
+        return this.accountRepository
+                .findAccountByUsername(((Account)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
     }
 
     @Override
     public void editAccount(Account account) {
         //wyciaganie po nazwie
-        Account accountEntity = accountRepository.findAccountByUsername("token");
+        Account accountEntity = accountRepository.findAccountByUsername(((Account)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
         accountEntity.setEmail(account.getEmail());
+        accountEntity.setVersion(account.getVersion());
         accountRepository.save(accountEntity);
     }
 
     @Override
-    public void changePassword(Account account) {
-        //wyciaganie po nazwie z tokena
-        Account accountEntity = accountRepository.findAccountByUsername("token");
-        accountEntity.setPassword(passwordEncoder.encode(account.getPassword()));
+    public void changePassword(PasswordDTO passwordDTO) throws Exception {
+        if (!passwordDTO.getNewPassword().equals(passwordDTO.getConfirmedPassword())) {
+            throw new Exception("dasd1");
+        }
+        Account accountEntity = accountRepository.findAccountByUsername(((Account)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
+        if (!passwordEncoder.matches(passwordDTO.getOldPassword(),accountEntity.getPassword())) {
+            throw new Exception("dasd2");
+        }
+        accountEntity.setPassword(passwordEncoder.encode(passwordDTO.getNewPassword()));
         accountRepository.save(accountEntity);
     }
 

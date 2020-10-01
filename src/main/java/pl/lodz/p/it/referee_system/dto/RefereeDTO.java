@@ -11,6 +11,7 @@ public class RefereeDTO {
     private String surname;
     private String email;
     private String license;
+    private Long version;
 
     public RefereeDTO(){}
 
@@ -20,5 +21,6 @@ public class RefereeDTO {
         this.surname = referee.getSurname();
         this.email = referee.getAccount().getEmail();
         this.license = referee.getLicense().getType();
+        this.version = referee.getVersion();
     }
 }

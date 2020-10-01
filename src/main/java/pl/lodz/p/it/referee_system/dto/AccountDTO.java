@@ -8,6 +8,7 @@ public class AccountDTO {
 
     private String username;
     private String email;
+    private Long version;
 
     public AccountDTO() {
     }
@@ -15,6 +16,7 @@ public class AccountDTO {
     public AccountDTO(Account account) {
         this.username = account.getUsername();
         this.email = account.getEmail();
+        this.version = account.getVersion();
     }
 
 }
