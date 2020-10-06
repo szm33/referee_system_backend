@@ -6,7 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -14,13 +13,14 @@ import org.springframework.web.server.ResponseStatusException;
 import pl.lodz.p.it.referee_system.dto.*;
 import pl.lodz.p.it.referee_system.mapper.AccountMapper;
 import pl.lodz.p.it.referee_system.service.AccountService;
+import pl.lodz.p.it.referee_system.utill.ContextUtills;
 import pl.lodz.p.it.referee_system.utill.TokenUtills;
 
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.*;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 @RestController
@@ -33,7 +33,6 @@ public class AccountController {
     private TokenUtills tokenUtills;
     @Autowired
     private AccountService accountService;
-
     @GetMapping("error")
     public String sad(){
         return "error";
@@ -69,12 +68,9 @@ public class AccountController {
         return ResponseEntity.ok(new AccountDTO(accountService.getAccount(id)));
     }
 
-    @Autowired
-    private HttpServletRequest http;
-
     @GetMapping("locale")
     public ResponseEntity<StringDTO> getLocale() {
-        return ResponseEntity.ok(new StringDTO(http.getLocale().getLanguage()));
+        return ResponseEntity.ok(new StringDTO(ContextUtills.getLanguage()));
     }
 
     @GetMapping("myaccount")

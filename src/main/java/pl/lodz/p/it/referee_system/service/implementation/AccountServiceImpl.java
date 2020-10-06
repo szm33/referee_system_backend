@@ -13,6 +13,7 @@ import pl.lodz.p.it.referee_system.dto.PasswordDTO;
 import pl.lodz.p.it.referee_system.entity.Account;
 import pl.lodz.p.it.referee_system.repository.AccountRepository;
 import pl.lodz.p.it.referee_system.service.AccountService;
+import pl.lodz.p.it.referee_system.utill.ContextUtills;
 
 import java.util.List;
 
@@ -55,7 +56,7 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void editAccount(Account account) {
         //wyciaganie po nazwie
-        Account accountEntity = accountRepository.findAccountByUsername(((Account)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
+        Account accountEntity = accountRepository.findAccountByUsername(ContextUtills.getUsername());
         accountEntity.setEmail(account.getEmail());
         accountEntity.setVersion(account.getVersion());
         accountRepository.save(accountEntity);
@@ -66,7 +67,7 @@ public class AccountServiceImpl implements AccountService {
         if (!passwordDTO.getNewPassword().equals(passwordDTO.getConfirmedPassword())) {
             throw new Exception("dasd1");
         }
-        Account accountEntity = accountRepository.findAccountByUsername(((Account)SecurityContextHolder.getContext().getAuthentication().getPrincipal()).getUsername());
+        Account accountEntity = accountRepository.findAccountByUsername(ContextUtills.getUsername());
         if (!passwordEncoder.matches(passwordDTO.getOldPassword(),accountEntity.getPassword())) {
             throw new Exception("dasd2");
         }
