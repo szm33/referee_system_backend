@@ -20,6 +20,4 @@ public interface AccountService extends UserDetailsService {
     void changePassword(PasswordDTO passwordDTO) throws Exception;
 
     void resetPassword(Account account);
-
-    void changeActiveStatus(Long id);
 }

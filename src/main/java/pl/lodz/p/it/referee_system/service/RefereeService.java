@@ -13,4 +13,6 @@ public interface RefereeService {
     void addReferee(Referee referee);
 
     void editReferee(Referee referee);
+
+    void changeActiveStatus(Long id);
 }

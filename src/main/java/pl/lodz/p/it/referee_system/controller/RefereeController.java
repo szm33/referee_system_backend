@@ -9,7 +9,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import pl.lodz.p.it.referee_system.dto.RefereeCreateDTO;
 import pl.lodz.p.it.referee_system.dto.RefereeDTO;
+import pl.lodz.p.it.referee_system.dto.RefereeListDTO;
+import pl.lodz.p.it.referee_system.entity.License;
 import pl.lodz.p.it.referee_system.mapper.RefereeMapper;
+import pl.lodz.p.it.referee_system.service.LicenseService;
 import pl.lodz.p.it.referee_system.service.RefereeService;
 
 import javax.validation.Valid;
@@ -26,12 +29,15 @@ public class RefereeController {
     public PasswordEncoder passwordEncoder;
 
     @Autowired
+    private LicenseService licenseService;
+    @Autowired
     private RefereeService refereeService;
 
+
     @GetMapping
-    public ResponseEntity<List<RefereeDTO>> getAllReferee() {
+    public ResponseEntity<List<RefereeListDTO>> getAllReferee() {
             return ResponseEntity.ok((refereeService.getAllReferees().stream()
-                    .map(RefereeDTO::new)
+                    .map(RefereeListDTO::new)
                     .collect(Collectors.toList())));
     }
 
@@ -39,8 +45,8 @@ public class RefereeController {
     public ResponseEntity<RefereeDTO> getReferee(@PathVariable("id") Long id) {
             return ResponseEntity.ok(new RefereeDTO(refereeService.getReferee(id)));
     }
-
     //dostepna jednie dla admina
+
     @PutMapping
     public ResponseEntity<String> editReferee(@Valid @RequestBody RefereeDTO referee) {
         refereeService.editReferee(RefereeMapper.map(referee));
@@ -57,5 +63,16 @@ public class RefereeController {
     @ExceptionHandler(NoSuchElementException.class)
     public String noRefereeFound() {
         return "Referee not found";
+    }
+
+    @PostMapping("{id}/active")
+    public ResponseEntity<String> changeActiveStatus(@PathVariable Long id) {
+        refereeService.changeActiveStatus(id);
+        return ResponseEntity.ok("Active status changed successfully");
+    }
+
+    @GetMapping("license")
+    public ResponseEntity<List<License>> getLicenses() {
+        return ResponseEntity.ok(licenseService.getAllLicense());
     }
 }

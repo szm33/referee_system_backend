@@ -78,11 +78,4 @@ public class AccountServiceImpl implements AccountService {
     public void resetPassword(Account account) {
         //wysylanie maila i odbieranie po linku
     }
-
-    @Override
-    public void changeActiveStatus(Long id) {
-        Account account = accountRepository.findById(id).orElseThrow();
-        account.setActive(!account.isActive());
-        accountRepository.save(account);
-    }
 }

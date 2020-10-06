@@ -101,12 +101,6 @@ public class AccountController {
 
     }
 
-    @PostMapping("account/{id}/active")
-    public ResponseEntity<String> changeActiveStatus(@PathVariable Long id) {
-        accountService.changeActiveStatus(id);
-        return ResponseEntity.ok("Active status changed successfully");
-    }
-
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(NoSuchElementException.class)
     public String noAccountFound() {

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import pl.lodz.p.it.referee_system.entity.Account;
 import pl.lodz.p.it.referee_system.entity.Referee;
 import pl.lodz.p.it.referee_system.repository.LicenseRepository;
 import pl.lodz.p.it.referee_system.repository.RefereeRepository;
@@ -55,5 +56,12 @@ public class RefereeServiceImpl implements RefereeService {
         refereeEntity.getAccount().setEmail(referee.getAccount().getEmail());
         refereeEntity.setVersion(referee.getVersion());
         refereeRepository.save(refereeEntity);
+    }
+
+    @Override
+    public void changeActiveStatus(Long id) {
+        Referee referee = refereeRepository.findById(id).orElseThrow();
+        referee.getAccount().setActive(!referee.getAccount().isActive());
+        refereeRepository.save(referee);
     }
 }
