@@ -18,12 +18,13 @@ public class Account implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    @Column(name = "username", unique = true)
     private String username;
     private String password;
     private String email;
     @Column(name = "is_active", columnDefinition = "boolean default true")
     private boolean isActive;
-    @OneToOne(mappedBy = "account")
+    @OneToOne(mappedBy = "account", fetch = FetchType.LAZY, cascade = CascadeType.DETACH)
     private Referee referee;
     @NotNull
     @Version

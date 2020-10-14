@@ -17,7 +17,7 @@ public interface AccountService extends UserDetailsService {
 
     void editAccount(Account account);
 
-    void changePassword(PasswordDTO passwordDTO) throws Exception;
+    void changePassword(PasswordDTO passwordDTO);
 
     void resetPassword(Account account);
 }

@@ -11,6 +11,7 @@ import pl.lodz.p.it.referee_system.dto.RefereeCreateDTO;
 import pl.lodz.p.it.referee_system.dto.RefereeDTO;
 import pl.lodz.p.it.referee_system.dto.RefereeListDTO;
 import pl.lodz.p.it.referee_system.entity.License;
+import pl.lodz.p.it.referee_system.exception.RefereeException;
 import pl.lodz.p.it.referee_system.mapper.RefereeMapper;
 import pl.lodz.p.it.referee_system.service.LicenseService;
 import pl.lodz.p.it.referee_system.service.RefereeService;
@@ -36,39 +37,39 @@ public class RefereeController {
 
     @GetMapping
     public ResponseEntity<List<RefereeListDTO>> getAllReferee() {
-            return ResponseEntity.ok((refereeService.getAllReferees().stream()
-                    .map(RefereeListDTO::new)
-                    .collect(Collectors.toList())));
+        return ResponseEntity.ok((refereeService.getAllReferees().stream()
+                .map(RefereeListDTO::new)
+                .collect(Collectors.toList())));
     }
 
     @GetMapping("{id}")
     public ResponseEntity<RefereeDTO> getReferee(@PathVariable("id") Long id) {
-            return ResponseEntity.ok(new RefereeDTO(refereeService.getReferee(id)));
+        return ResponseEntity.ok(new RefereeDTO(refereeService.getReferee(id)));
     }
     //dostepna jednie dla admina
 
     @PutMapping
-    public ResponseEntity<String> editReferee(@Valid @RequestBody RefereeDTO referee) {
+    public ResponseEntity editReferee(@Valid @RequestBody RefereeDTO referee) {
         refereeService.editReferee(RefereeMapper.map(referee));
-        return ResponseEntity.ok("Successfully edited referee");
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping
-    public ResponseEntity<String> addReferee(@Valid @RequestBody RefereeCreateDTO referee) {
+    public ResponseEntity addReferee(@Valid @RequestBody RefereeCreateDTO referee) {
         refereeService.addReferee(RefereeMapper.map(referee));
-        return ResponseEntity.ok("Successfully added " + referee.getName() + "" + referee.getSurname());
+        return ResponseEntity.ok().build();
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(NoSuchElementException.class)
-    public String noRefereeFound() {
-        return "Referee not found";
-    }
+//    @ResponseStatus(HttpStatus.BAD_REQUEST)
+//    @ExceptionHandler(NoSuchElementException.class)
+//    public String noRefereeFound() {
+//        return "Referee not found";
+//    }
 
     @PostMapping("{id}/active")
-    public ResponseEntity<String> changeActiveStatus(@PathVariable Long id) {
+    public ResponseEntity changeActiveStatus(@PathVariable Long id) {
         refereeService.changeActiveStatus(id);
-        return ResponseEntity.ok("Active status changed successfully");
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("license")

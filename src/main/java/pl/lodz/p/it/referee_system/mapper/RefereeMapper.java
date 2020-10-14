@@ -28,8 +28,10 @@ public class RefereeMapper {
         referee.setName(refereeDTO.getName());
         referee.setSurname(refereeDTO.getSurname());
         account.setEmail(refereeDTO.getEmail());
+        account.setVersion(refereeDTO.getAccountVersion());
         referee.setLicense(license);
         referee.setAccount(account);
+        referee.setVersion(refereeDTO.getVersion());
         return referee;
     }
 }

@@ -12,6 +12,7 @@ public class RefereeDTO {
     private String email;
     private String license;
     private Long version;
+    private Long accountVersion;
 
     public RefereeDTO(){}
 
@@ -22,5 +23,6 @@ public class RefereeDTO {
         this.email = referee.getAccount().getEmail();
         this.license = referee.getLicense().getType();
         this.version = referee.getVersion();
+        this.accountVersion = referee.getAccount().getVersion();
     }
 }

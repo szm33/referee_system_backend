@@ -79,17 +79,17 @@ public class AccountController {
     }
     //edycja konta tylko dla wlasciciela edyja reszty danych imie,email,nazwisko ranga dla admina
     @PutMapping("account")
-    public ResponseEntity<String> editAccount(@Valid @RequestBody AccountEditDTO account) {
+    public ResponseEntity editAccount(@Valid @RequestBody AccountEditDTO account) {
         accountService.editAccount(AccountMapper.map(account));
-        return ResponseEntity.ok("Successfully edited account ");
+        return ResponseEntity.ok().build();
     }
 
     //haslo zmoenia tylko posiadacz
     @PostMapping("account/password")
-    public ResponseEntity<String> changePassword(@Valid @RequestBody PasswordDTO password) {
+    public ResponseEntity changePassword(@Valid @RequestBody PasswordDTO password) {
         try {
             accountService.changePassword(password);
-            return ResponseEntity.ok("Password changed");
+            return ResponseEntity.ok().build();
         }
         catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Password do not match");

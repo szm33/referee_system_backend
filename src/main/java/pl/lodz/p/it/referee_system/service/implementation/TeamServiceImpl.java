@@ -1,8 +1,10 @@
 package pl.lodz.p.it.referee_system.service.implementation;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import pl.lodz.p.it.referee_system.entity.Team;
+import pl.lodz.p.it.referee_system.exception.TeamException;
 import pl.lodz.p.it.referee_system.repository.LeagueRepository;
 import pl.lodz.p.it.referee_system.repository.TeamRepository;
 import pl.lodz.p.it.referee_system.service.TeamService;
@@ -19,8 +21,15 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public void addTeam(Team team) {
-        team.setLeague(leagueRepository.findByName(team.getLeague().getName()));
-        teamRepository.save(team);
+        try {
+            team.setLeague(leagueRepository.findByName(team.getLeague().getName()));
+            teamRepository.save(team);
+            teamRepository.flush();
+        }
+        //dodac unique na parrze liga nazwa
+        catch (DataIntegrityViolationException e) {
+            throw TeamException.exceptionForNotUniqueNameInLeague(e);
+        }
     }
 
     @Override
