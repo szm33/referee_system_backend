@@ -1,6 +1,7 @@
 package pl.lodz.p.it.referee_system.service.implementation;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -17,8 +18,12 @@ import pl.lodz.p.it.referee_system.repository.AccountRepository;
 import pl.lodz.p.it.referee_system.repository.EntityManagerRepository;
 import pl.lodz.p.it.referee_system.service.AccountService;
 import pl.lodz.p.it.referee_system.utill.ContextUtills;
+import pl.lodz.p.it.referee_system.utill.ResetLinkSender;
 
+import java.util.Date;
 import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
@@ -32,6 +37,9 @@ public class AccountServiceImpl implements AccountService {
 
    @Autowired
    private EntityManagerRepository entityManager;
+
+    @Value("${expiry.reset.link}")
+    private String expiryResetLink;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws  UsernameNotFoundException {
@@ -86,7 +94,40 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public void sendResetLink(String username) {
+        accountRepository.findAccountByUsername(username).ifPresent(data -> {
+            //tworzenie linku zapis do bazy
+            String token = String.valueOf(new Date().getTime());
+            String link = ContextUtills.createResetLink(token);
+            data.setResetLink(token);
+            accountRepository.save(data);
+            ResetLinkSender resetLinkSender = new ResetLinkSender(data.getEmail(), link);
+            resetLinkSender.start();
+        });
+    }
+
+    @Override
+    public boolean validateResetLink(String link) {
+        Optional<Account> account = accountRepository.findAccountByResetLink(link);
+        if(account.isPresent()){
+            Date expiryDate = new Date(Long.valueOf(account.get().getResetLink()) + Long.valueOf(expiryResetLink));
+            if(expiryDate.after(new Date())){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public void resetPassword(Account account) {
-        //wysylanie maila i odbieranie po linku
+        accountRepository.findAccountByResetLink(account.getResetLink()).ifPresentOrElse(
+                accountEntity -> {
+                    accountEntity.setResetLink(null);
+                    accountEntity.setPassword(passwordEncoder.encode(account.getPassword()));
+                    accountRepository.save(accountEntity);
+                },
+                () -> {
+                    throw new NoSuchElementException("No value present");
+                });
     }
 }

@@ -2,6 +2,7 @@ package pl.lodz.p.it.referee_system.dto;
 
 import lombok.Data;
 import pl.lodz.p.it.referee_system.entity.Referee;
+import pl.lodz.p.it.referee_system.utill.ContextUtills;
 
 @Data
 public class RefereeDTO {
@@ -11,7 +12,7 @@ public class RefereeDTO {
     private String surname;
     private String email;
     private String license;
-    private Long version;
+    private String version;
     private Long accountVersion;
 
     public RefereeDTO(){}
@@ -22,7 +23,7 @@ public class RefereeDTO {
         this.surname = referee.getSurname();
         this.email = referee.getAccount().getEmail();
         this.license = referee.getLicense().getType();
-        this.version = referee.getVersion();
+        this.version = ContextUtills.encrypt(referee.getVersion());
         this.accountVersion = referee.getAccount().getVersion();
     }
 }

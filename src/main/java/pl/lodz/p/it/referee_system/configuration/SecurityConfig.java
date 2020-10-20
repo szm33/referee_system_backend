@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -31,6 +32,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(securedEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
@@ -57,7 +59,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/locale").permitAll()
                 .antMatchers(HttpMethod.POST,"/referee").hasRole("ADMIN")
                 .antMatchers("/referee").hasRole("REFEREE")
-                .anyRequest().authenticated()
+                .anyRequest().permitAll()
                 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.addFilterBefore(requestFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -100,13 +102,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 //        return new TomcatServletWebServerFactory();
 //    }
-
-    private Connector httpToHttpsRedirectConnector() {
-        Connector connector = new Connector(TomcatServletWebServerFactory.DEFAULT_PROTOCOL);
-        connector.setScheme("http");
-        connector.setPort(8080);
-        connector.setSecure(false);
-        connector.setRedirectPort(8443);
-        return connector;
-    }
+//
+//    private Connector httpToHttpsRedirectConnector() {
+//        Connector connector = new Connector(TomcatServletWebServerFactory.DEFAULT_PROTOCOL);
+//        connector.setScheme("http");
+//        connector.setPort(8080);
+//        connector.setSecure(false);
+//        connector.setRedirectPort(8443);
+//        return connector;
+//    }
 }

@@ -30,6 +30,8 @@ public class Account implements UserDetails {
     @Version
     @Column
     private long version;
+    @Column(name = "reset_link")
+    private String resetLink;
 
 
     public Account() {

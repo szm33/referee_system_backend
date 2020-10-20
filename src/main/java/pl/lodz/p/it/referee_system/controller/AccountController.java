@@ -11,12 +11,15 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import pl.lodz.p.it.referee_system.dto.*;
+import pl.lodz.p.it.referee_system.exception.AccountException;
 import pl.lodz.p.it.referee_system.mapper.AccountMapper;
 import pl.lodz.p.it.referee_system.service.AccountService;
 import pl.lodz.p.it.referee_system.utill.ContextUtills;
+//import pl.lodz.p.it.referee_system.utill.EmailUtills;
 import pl.lodz.p.it.referee_system.utill.TokenUtills;
 
 
+import javax.mail.MessagingException;
 import javax.validation.*;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -67,9 +70,11 @@ public class AccountController {
     public ResponseEntity<AccountDTO> getAccount(@PathVariable("id") Long id) {
         return ResponseEntity.ok(new AccountDTO(accountService.getAccount(id)));
     }
+//    @Autowired
+//    private EmailUtills emailUtills;
 
     @GetMapping("locale")
-    public ResponseEntity<StringDTO> getLocale() {
+    public ResponseEntity<StringDTO> getLocale() throws MessagingException {
         return ResponseEntity.ok(new StringDTO(ContextUtills.getLanguage()));
     }
 
@@ -81,6 +86,30 @@ public class AccountController {
     @PutMapping("account")
     public ResponseEntity editAccount(@Valid @RequestBody AccountEditDTO account) {
         accountService.editAccount(AccountMapper.map(account));
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("account/reset/{username}")
+    public ResponseEntity sendResetLink(@PathVariable String username) {
+        accountService.sendResetLink(username);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("validate/{link}")
+    public ResponseEntity<StringDTO> validateResetLink(@PathVariable String link) {
+       StringDTO stringDTO = new StringDTO("false");
+        if (accountService.validateResetLink(link)) {
+            stringDTO.setValue("true");
+        }
+        return ResponseEntity.ok(stringDTO);
+    }
+
+    @PostMapping("account/reset")
+    public ResponseEntity resetPassword(@RequestBody ResetPasswordDTO resetPassword) {
+        if (!resetPassword.getPassword().equals(resetPassword.getConfirmedPassword())) {
+            throw AccountException.exceptionForNotMatchingPasswords();
+        }
+        accountService.resetPassword(AccountMapper.map(resetPassword));
         return ResponseEntity.ok().build();
     }
 

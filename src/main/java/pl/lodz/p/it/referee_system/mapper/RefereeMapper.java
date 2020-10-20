@@ -5,6 +5,7 @@ import pl.lodz.p.it.referee_system.dto.RefereeDTO;
 import pl.lodz.p.it.referee_system.entity.Account;
 import pl.lodz.p.it.referee_system.entity.License;
 import pl.lodz.p.it.referee_system.entity.Referee;
+import pl.lodz.p.it.referee_system.utill.ContextUtills;
 
 public class RefereeMapper {
 
@@ -31,7 +32,7 @@ public class RefereeMapper {
         account.setVersion(refereeDTO.getAccountVersion());
         referee.setLicense(license);
         referee.setAccount(account);
-        referee.setVersion(refereeDTO.getVersion());
+        referee.setVersion(ContextUtills.decrypt(refereeDTO.getVersion()));
         return referee;
     }
 }

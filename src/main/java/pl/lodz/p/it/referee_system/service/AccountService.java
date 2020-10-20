@@ -19,5 +19,9 @@ public interface AccountService extends UserDetailsService {
 
     void changePassword(PasswordDTO passwordDTO);
 
+    void sendResetLink(String username);
+
+    boolean validateResetLink(String link);
+
     void resetPassword(Account account);
 }

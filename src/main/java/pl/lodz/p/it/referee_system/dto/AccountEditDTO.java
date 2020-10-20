@@ -10,6 +10,6 @@ public class AccountEditDTO {
     private Long id;
     @Email
     private String email;
-    private Long version;
+    private String version;
 
 }
