@@ -4,23 +4,22 @@ import lombok.Data;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Data
-public class Team {
-
+public class TeamOnMatch {
+//unikalnosc na id maczeu i is guest
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @Column
-    private String name;
+    private boolean isGuest;
     @ManyToOne
-    @JoinColumn(name = "league_id", referencedColumnName = "id")
-    private League league;
-    @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
-    private List<TeamOnMatch> matches = new ArrayList<>();
+    @JoinColumn(name = "team_id", referencedColumnName = "id")
+    private Team team;
+    @ManyToOne
+    @JoinColumn(name = "match_id", referencedColumnName = "id")
+    private Match match;
     @NotNull
     @Version
     @Column

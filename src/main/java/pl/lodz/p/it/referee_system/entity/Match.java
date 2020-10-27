@@ -16,13 +16,9 @@ public class Match {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @OneToMany(mappedBy = "match")
-    private List<MatchFunction> refereeFunctions = new ArrayList<>();
-    @ManyToOne
-    @JoinColumn(name = "away_team_id", referencedColumnName = "id")
-    private Team awayTeam;
-    @ManyToOne
-    @JoinColumn(name = "home_team_id", referencedColumnName = "id")
-    private Team homeTeam;
+    private List<RefereeFunctionOnMatch> referees = new ArrayList<>();
+    @OneToMany(mappedBy = "match")
+    private List<TeamOnMatch> teams = new ArrayList<>();
     @Column(name = "date")
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateOfMatch;

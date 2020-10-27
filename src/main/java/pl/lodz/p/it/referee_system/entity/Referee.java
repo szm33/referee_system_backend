@@ -6,7 +6,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
-@Entity(name = "referee")
+@Entity(name = "Referee")
 @Data
 public class Referee {
 
@@ -33,7 +33,7 @@ public class Referee {
     private License license;
 
     @OneToMany(mappedBy = "referee", cascade = CascadeType.ALL)
-    private List<MatchFunction> matchFunctions;
+    private List<RefereeFunctionOnMatch> matches;
 
     @NotNull
     @Version

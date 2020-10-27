@@ -29,10 +29,21 @@ public class TeamController {
                 .collect(Collectors.toList()));
     }
 
+    @GetMapping("{id}")
+    public ResponseEntity<TeamListDTO> getTeam(@PathVariable Long id) {
+        return ResponseEntity.ok(new TeamListDTO(teamService.getTeam(id)));
+    }
+
     @PostMapping
-    public ResponseEntity<String> addTeam(@RequestBody TeamCreateDTO team) {
+    public ResponseEntity addTeam(@RequestBody TeamCreateDTO team) {
         teamService.addTeam(TeamMapper.map(team));
-        return ResponseEntity.ok("Successfully added team");
+        return ResponseEntity.ok().build();
+    }
+
+    @PutMapping
+    public ResponseEntity editTeam(@RequestBody TeamListDTO team) {
+        teamService.editTeam(TeamMapper.map(team));
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("league")
