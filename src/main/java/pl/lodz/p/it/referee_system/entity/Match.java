@@ -4,6 +4,7 @@ import lombok.Data;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -20,8 +21,8 @@ public class Match {
     @OneToMany(mappedBy = "match")
     private List<TeamOnMatch> teams = new ArrayList<>();
     @Column(name = "date")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date dateOfMatch;
+//    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDate dateOfMatch;
     @Column
     private Integer homeScore;
     @Column

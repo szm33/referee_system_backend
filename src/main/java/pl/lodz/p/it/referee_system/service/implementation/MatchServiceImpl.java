@@ -1,6 +1,7 @@
 package pl.lodz.p.it.referee_system.service.implementation;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import pl.lodz.p.it.referee_system.entity.Match;
 import pl.lodz.p.it.referee_system.entity.Referee;
@@ -12,6 +13,7 @@ import pl.lodz.p.it.referee_system.repository.TeamRepository;
 import pl.lodz.p.it.referee_system.service.MatchService;
 import pl.lodz.p.it.referee_system.utill.ContextUtills;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -61,7 +63,7 @@ public class MatchServiceImpl implements MatchService {
         teams.stream()
                 .filter(team -> team.getMatches().stream()
                         .noneMatch(teamOnMatch -> teamOnMatch.getMatch()
-                                .getDateOfMatch().compareTo(match.getDateOfMatch()) == 0));
+                                .getDateOfMatch().isEqual(match.getDateOfMatch())));
         if (teams.size() != 2) {
             throw new NoSuchElementException("No value present");
         }
@@ -77,7 +79,7 @@ public class MatchServiceImpl implements MatchService {
         referees.stream()
                 .filter(referee -> referee.getMatches().stream()
                 .noneMatch(refereeOnMatch -> refereeOnMatch.getMatch()
-                        .getDateOfMatch().compareTo(match.getDateOfMatch()) == 0));
+                        .getDateOfMatch().isEqual(match.getDateOfMatch())));
         if (referees.size() != match.getReferees().size()) {
             throw new NoSuchElementException("No value present");
         }
@@ -96,5 +98,10 @@ public class MatchServiceImpl implements MatchService {
     @Override
     public void editMatch(Match match) {
 
+    }
+
+    @Override
+    public Pair<List<Team>, List<Referee>> getFreeTeamsAndReferees(LocalDate date) {
+        return Pair.of(teamRepository.findAllFreeTeams(date), refereeRepository.findAllFreeReferees(date));
     }
 }

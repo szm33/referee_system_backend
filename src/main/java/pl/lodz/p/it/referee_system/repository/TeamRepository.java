@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.lodz.p.it.referee_system.entity.Match;
 import pl.lodz.p.it.referee_system.entity.Team;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -21,5 +22,8 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
 //    List<Team> findTeamsByIdIfFree(@Param("id") Collection<Long> id, @Param("date") Date date);
     @Query(value = "SELECT Team from Team where id in :id")
     List<Team> findTeamsByIds(@Param("id") Collection<Long> id);
+
+    @Query(value = "SELECT Team from Team where id not in (SELECT team.id from TeamOnMatch where match.dateOfMatch = :date)")
+    List<Team> findAllFreeTeams(@Param("date") LocalDate date);
 
 }
