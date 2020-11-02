@@ -14,9 +14,9 @@ import java.util.List;
 @Transactional(propagation = Propagation.MANDATORY)
 public interface MatchRepository extends JpaRepository<Match, Long> {
 
-    @Query(value = "SELECT mf.match FROM RefereeFunctionOnMatch as mf WHERE mf.referee.id = :refere_id")
+    @Query("SELECT r.match FROM RefereeFunctionOnMatch r where r.referee.id = :referee_id")
     List<Match> findByRefereeId(@Param("referee_id") Long id);
 
-    @Query(value = "SELECT mf.match FROM RefereeFunctionOnMatch as mf WHERE mf.referee.account.username = :username")
+    @Query("SELECT r.match FROM RefereeFunctionOnMatch r where r.referee.account.username = :username")
     List<Match> findByUsername(@Param("username") String username);
 }

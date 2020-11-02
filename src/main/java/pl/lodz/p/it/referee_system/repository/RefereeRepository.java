@@ -17,9 +17,9 @@ import java.util.List;
 @Transactional(propagation = Propagation.MANDATORY)
 public interface RefereeRepository extends JpaRepository<Referee, Long> {
 
-    @Query(value = "SELECT Referee from Referee where id in :id")
+    @Query("SELECT r from Referee r where r.id in :id")
     List<Referee> findRefereesByIds(@Param("id") Collection<Long> id);
 
-    @Query(value = "SELECT Referee from Referee where id not in (SELECT referee.id from RefereeFunctionOnMatch where match.dateOfMatch = :date)")
+    @Query("SELECT r from Referee r where r.id not in (SELECT rf.referee.id from RefereeFunctionOnMatch rf where rf.match.dateOfMatch = :date)")
     List<Referee> findAllFreeReferees(@Param("date") LocalDate date);
 }

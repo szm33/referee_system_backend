@@ -3,6 +3,9 @@ package pl.lodz.p.it.referee_system.service.implementation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import pl.lodz.p.it.referee_system.entity.Team;
 import pl.lodz.p.it.referee_system.exception.TeamException;
 import pl.lodz.p.it.referee_system.repository.EntityManagerRepository;
@@ -14,6 +17,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 @Service
+@Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
 public class TeamServiceImpl implements TeamService {
 
     @Autowired

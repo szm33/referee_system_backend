@@ -20,10 +20,10 @@ import java.util.Optional;
 public interface TeamRepository extends JpaRepository<Team, Long> {
 //    @Query(value = "SELECT Team from Team where id in :id AND id not in (SELECT team.id from TeamOnMatch where match.dateOfMatch = :date)")
 //    List<Team> findTeamsByIdIfFree(@Param("id") Collection<Long> id, @Param("date") Date date);
-    @Query(value = "SELECT Team from Team where id in :id")
+    @Query("SELECT t from Team t where t.id in :id")
     List<Team> findTeamsByIds(@Param("id") Collection<Long> id);
 
-    @Query(value = "SELECT Team from Team where id not in (SELECT team.id from TeamOnMatch where match.dateOfMatch = :date)")
+    @Query("SELECT t from Team t where t.id not in(SELECT tm.team.id from TeamOnMatch tm where tm.match.dateOfMatch = :date)")
     List<Team> findAllFreeTeams(@Param("date") LocalDate date);
 
 }

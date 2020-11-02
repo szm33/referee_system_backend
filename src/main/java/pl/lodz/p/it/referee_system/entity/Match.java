@@ -16,11 +16,11 @@ public class Match {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @OneToMany(mappedBy = "match")
+    @OneToMany(mappedBy = "match", cascade = CascadeType.ALL)
     private List<RefereeFunctionOnMatch> referees = new ArrayList<>();
-    @OneToMany(mappedBy = "match")
+    @OneToMany(mappedBy = "match", cascade = CascadeType.ALL)
     private List<TeamOnMatch> teams = new ArrayList<>();
-    @Column(name = "date")
+    @Column(name = "date_of_match")
 //    @Temporal(TemporalType.TIMESTAMP)
     private LocalDate dateOfMatch;
     @Column

@@ -3,10 +3,11 @@ package pl.lodz.p.it.referee_system.service.implementation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
-import pl.lodz.p.it.referee_system.entity.Match;
-import pl.lodz.p.it.referee_system.entity.Referee;
-import pl.lodz.p.it.referee_system.entity.Team;
-import pl.lodz.p.it.referee_system.entity.TeamOnMatch;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import pl.lodz.p.it.referee_system.entity.*;
+import pl.lodz.p.it.referee_system.repository.MatchFunctionRepository;
 import pl.lodz.p.it.referee_system.repository.MatchRepository;
 import pl.lodz.p.it.referee_system.repository.RefereeRepository;
 import pl.lodz.p.it.referee_system.repository.TeamRepository;
@@ -19,6 +20,7 @@ import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
 public class MatchServiceImpl implements MatchService {
 
     @Autowired
@@ -27,6 +29,8 @@ public class MatchServiceImpl implements MatchService {
     private TeamRepository teamRepository;
     @Autowired
     private RefereeRepository refereeRepository;
+    @Autowired
+    private MatchFunctionRepository matchFunctionRepository;
 
     @Override
     public List<Match> getAllMatches() {
@@ -103,5 +107,10 @@ public class MatchServiceImpl implements MatchService {
     @Override
     public Pair<List<Team>, List<Referee>> getFreeTeamsAndReferees(LocalDate date) {
         return Pair.of(teamRepository.findAllFreeTeams(date), refereeRepository.findAllFreeReferees(date));
+    }
+
+    @Override
+    public List<MatchFunction> getAllMatchFunctions() {
+        return matchFunctionRepository.findAll();
     }
 }

@@ -2,6 +2,7 @@ package pl.lodz.p.it.referee_system.service;
 
 import org.springframework.data.util.Pair;
 import pl.lodz.p.it.referee_system.entity.Match;
+import pl.lodz.p.it.referee_system.entity.MatchFunction;
 import pl.lodz.p.it.referee_system.entity.Referee;
 import pl.lodz.p.it.referee_system.entity.Team;
 
@@ -23,5 +24,7 @@ public interface MatchService {
     void editMatch(Match match);
 
     Pair<List<Team>, List<Referee>> getFreeTeamsAndReferees(LocalDate date);
+
+    List<MatchFunction> getAllMatchFunctions();
 
 }

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import pl.lodz.p.it.referee_system.dto.FreeRefereeAndMatchesDTO;
 import pl.lodz.p.it.referee_system.dto.MatchCreateDTO;
 import pl.lodz.p.it.referee_system.dto.MatchDTO;
+import pl.lodz.p.it.referee_system.entity.MatchFunction;
 import pl.lodz.p.it.referee_system.mapper.MatchMapper;
 import pl.lodz.p.it.referee_system.service.MatchService;
 
@@ -52,6 +53,11 @@ public class MatchController {
     public ResponseEntity createMatch(@RequestBody MatchCreateDTO match) {
         matchService.createMatch(MatchMapper.map(match));
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("functions")
+    public ResponseEntity<List<MatchFunction>> getAllMatchFunctions() {
+        return ResponseEntity.ok(matchService.getAllMatchFunctions());
     }
 
 }

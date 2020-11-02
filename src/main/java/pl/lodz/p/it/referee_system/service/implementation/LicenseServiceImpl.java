@@ -2,6 +2,9 @@ package pl.lodz.p.it.referee_system.service.implementation;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import pl.lodz.p.it.referee_system.entity.License;
 import pl.lodz.p.it.referee_system.repository.LicenseRepository;
 import pl.lodz.p.it.referee_system.service.LicenseService;
@@ -9,6 +12,7 @@ import pl.lodz.p.it.referee_system.service.LicenseService;
 import java.util.List;
 
 @Service
+@Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
 public class LicenseServiceImpl implements LicenseService {
 
     @Autowired

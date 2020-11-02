@@ -12,6 +12,6 @@ public class MatchCreateDTO {
     private Long awayTeamId;
     private Long homeTeamId;
     private String description;
-    private LocalDate date;
+    private LocalDate dateOfMatch;
     private List<FreeRefereeDTO> referees = new ArrayList<>();
 }

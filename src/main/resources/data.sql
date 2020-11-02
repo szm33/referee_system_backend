@@ -1,5 +1,5 @@
 -- insert into referee (id, name, surname, permission_class) values (1, 'szymon', 'dobrowolski', 'I');
--- insert into account (id, login, password, is_active, role) values (1, 'szm', '33', true, 'ADMIN');
+-- insert into account (id, login, password, is_active, role) values (1, 'szm33', '$2a$10$WPfKIOrwG5zVTnG/ZSFd9.mD9/LmbfydasRo1VG8JEKzXIJGQBTJG', true, 'ADMIN');
 -- insert into account (id, login, password, is_active, role) values (2, 'szm33', '3311', true, 'USER');
 -- insert into role (id, name) values (1, 'ADMIN');
 -- insert into role (id, name) values (2, 'REFEREE');
@@ -10,7 +10,9 @@
 -- insert into league (id, name) values (1, 'FIRST');
 -- insert into league (id, name) values (2, 'SECOND');
 -- insert into league (id, name) values (3, 'THIRD');
-insert into team (id, name, league_id) values (1, 'RTS', 1);
-insert into team (id, name, league_id) values (2, 'LKS', 1);
-insert into team (id, name, league_id) values (3, 'WKS', 2);
-insert into team (id, name, league_id) values (4, 'WZW', 3);
+insert into account (id, login, password, email, is_active, role) values (1, 'szm33', '$2a$10$WPfKIOrwG5zVTnG/ZSFd9.mD9/LmbfydasRo1VG8JEKzXIJGQBTJG', 'ssbd062020@gmail.com', true, 'ADMIN');
+insert into referee(id,name,surname,account_id,role_id,license_id) values (1,'szymon','dobrowolski',1,2,1);
+-- insert into team (id, name, league_id) values (1, 'RTS', 1);
+-- insert into team (id, name, league_id) values (2, 'LKS', 1);
+-- insert into team (id, name, league_id) values (3, 'WKS', 2);
+-- insert into team (id, name, league_id) values (4, 'WZW', 3);
