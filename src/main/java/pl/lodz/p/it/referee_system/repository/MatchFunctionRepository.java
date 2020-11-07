@@ -6,7 +6,11 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pl.lodz.p.it.referee_system.entity.MatchFunction;
 
+import java.util.Optional;
+
 @Repository
 @Transactional(propagation = Propagation.MANDATORY)
 public interface MatchFunctionRepository extends JpaRepository<MatchFunction, Long> {
+
+    Optional<MatchFunction> findByFunctionName(String functionName);
 }

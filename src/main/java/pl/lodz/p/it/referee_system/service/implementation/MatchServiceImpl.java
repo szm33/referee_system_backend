@@ -64,10 +64,11 @@ public class MatchServiceImpl implements MatchService {
 //                            match.getDateOfMatch());
         List<Team> teams = teamRepository.findTeamsByIds(match.getTeams().stream()
                         .map(teamOnMatch -> teamOnMatch.getTeam().getId()).collect(Collectors.toList()));
-        teams.stream()
+        teams = teams.stream()
                 .filter(team -> team.getMatches().stream()
                         .noneMatch(teamOnMatch -> teamOnMatch.getMatch()
-                                .getDateOfMatch().isEqual(match.getDateOfMatch())));
+                                .getDateOfMatch().isEqual(match.getDateOfMatch())))
+        .collect(Collectors.toList());
         if (teams.size() != 2) {
             throw new NoSuchElementException("No value present");
         }
@@ -75,23 +76,28 @@ public class MatchServiceImpl implements MatchService {
         matchEntity.setTeams(match.getTeams());
         for(int i = 0; i < teams.size(); i++){
             matchEntity.getTeams().get(i).setTeam(teams.get(i));
-            //matchEntity.getTeams().get(i).setMatch(matchEntity);
+            matchEntity.getTeams().get(i).setMatch(matchEntity);
         }
 
         List<Referee> referees = refereeRepository.findRefereesByIds(match.getReferees().stream()
                 .map(refereeFunctionOnMatch -> refereeFunctionOnMatch.getReferee().getId()).collect(Collectors.toList()));
-        referees.stream()
+        referees = referees.stream()
                 .filter(referee -> referee.getMatches().stream()
                 .noneMatch(refereeOnMatch -> refereeOnMatch.getMatch()
-                        .getDateOfMatch().isEqual(match.getDateOfMatch())));
+                        .getDateOfMatch().isEqual(match.getDateOfMatch())))
+        .collect(Collectors.toList());
         if (referees.size() != match.getReferees().size()) {
             throw new NoSuchElementException("No value present");
         }
-
+        List<MatchFunction> matchFunctions = matchFunctionRepository.findAll();
+//        match.getReferees().get(0).setMatchFunction(matchFunctions.stream().filter(matchFunction -> matchFunction.getFunctionName().equals(match)).findFirst());
         matchEntity.setReferees(match.getReferees());
         for(int i = 0; i < referees.size(); i++){
+            matchEntity.getReferees().get(i).setMatchFunction(
+                    matchFunctionRepository.findByFunctionName(
+                            matchEntity.getReferees().get(i).getMatchFunction().getFunctionName()).orElseThrow());
             matchEntity.getReferees().get(i).setReferee(referees.get(i));
-//            matchEntity.getReferees().get(i).setMatch(matchEntity);
+            matchEntity.getReferees().get(i).setMatch(matchEntity);
 
         }
         matchEntity.setDateOfMatch(match.getDateOfMatch());

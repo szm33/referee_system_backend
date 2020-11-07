@@ -12,7 +12,7 @@ public class MatchMapper {
     public static Match map(MatchCreateDTO matchDTO) {
         Match match = new Match();
         match.setDescription(matchDTO.getDescription());
-        match.setDateOfMatch(matchDTO.getDateOfMatch());
+        match.setDateOfMatch(matchDTO.getDateOfMatch().plusDays(1L));
         Team homeTeam = new Team();
         Team awayTeam = new Team();
         homeTeam.setId(matchDTO.getHomeTeamId());

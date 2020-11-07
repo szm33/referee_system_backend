@@ -46,7 +46,7 @@ public class MatchController {
 
     @PostMapping("free/referees-teams")
     public ResponseEntity<FreeRefereeAndMatchesDTO> getFreeRefereesAndMatches(@RequestBody LocalDate date) {
-        return ResponseEntity.ok(new FreeRefereeAndMatchesDTO(matchService.getFreeTeamsAndReferees(date)));
+        return ResponseEntity.ok(new FreeRefereeAndMatchesDTO(matchService.getFreeTeamsAndReferees(date.plusDays(1L))));
     }
 
     @PostMapping
@@ -58,6 +58,12 @@ public class MatchController {
     @GetMapping("functions")
     public ResponseEntity<List<MatchFunction>> getAllMatchFunctions() {
         return ResponseEntity.ok(matchService.getAllMatchFunctions());
+    }
+
+    @PutMapping
+    public ResponseEntity modifyMatch(@RequestBody MatchCreateDTO match) {
+        matchService.editMatch(MatchMapper.map(match));
+        return ResponseEntity.ok().build();
     }
 
 }
