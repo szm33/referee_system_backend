@@ -7,14 +7,14 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pl.lodz.p.it.referee_system.entity.*;
-import pl.lodz.p.it.referee_system.repository.MatchFunctionRepository;
-import pl.lodz.p.it.referee_system.repository.MatchRepository;
-import pl.lodz.p.it.referee_system.repository.RefereeRepository;
-import pl.lodz.p.it.referee_system.repository.TeamRepository;
+import pl.lodz.p.it.referee_system.repository.*;
 import pl.lodz.p.it.referee_system.service.MatchService;
 import pl.lodz.p.it.referee_system.utill.ContextUtills;
 
+import javax.persistence.EntityManager;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -31,6 +31,10 @@ public class MatchServiceImpl implements MatchService {
     private RefereeRepository refereeRepository;
     @Autowired
     private MatchFunctionRepository matchFunctionRepository;
+    @Autowired
+    private EntityManager entityManager;
+    @Autowired
+    private RefereeFunctionOnMatchRepository refereeFunctionOnMatchRepository;
 
     @Override
     public List<Match> getAllMatches() {
@@ -89,7 +93,7 @@ public class MatchServiceImpl implements MatchService {
         if (referees.size() != match.getReferees().size()) {
             throw new NoSuchElementException("No value present");
         }
-        List<MatchFunction> matchFunctions = matchFunctionRepository.findAll();
+//        List<MatchFunction> matchFunctions = matchFunctionRepository.findAll();
 //        match.getReferees().get(0).setMatchFunction(matchFunctions.stream().filter(matchFunction -> matchFunction.getFunctionName().equals(match)).findFirst());
         matchEntity.setReferees(match.getReferees());
         for(int i = 0; i < referees.size(); i++){
@@ -98,7 +102,6 @@ public class MatchServiceImpl implements MatchService {
                             matchEntity.getReferees().get(i).getMatchFunction().getFunctionName()).orElseThrow());
             matchEntity.getReferees().get(i).setReferee(referees.get(i));
             matchEntity.getReferees().get(i).setMatch(matchEntity);
-
         }
         matchEntity.setDateOfMatch(match.getDateOfMatch());
         matchEntity.setDescription(match.getDescription());
@@ -107,7 +110,63 @@ public class MatchServiceImpl implements MatchService {
 
     @Override
     public void editMatch(Match match) {
+        Match matchEntity = matchRepository.findById(match.getId()).orElseThrow();
+        if (match.getDateOfMatch() == null) {
+            throw new NoSuchElementException("No value present");
+        }
+        //jesli data zmieniona sprawdzenie czy druzyny sa wolne
+        if (!match.getDateOfMatch().isEqual(matchEntity.getDateOfMatch()) && matchEntity.getTeams().stream()
+                .filter(team -> team.getTeam().getMatches().stream()
+                        .noneMatch(teamOnMatch -> teamOnMatch.getMatch()
+                                .getDateOfMatch().isEqual(match.getDateOfMatch())))
+            .count() != 2) {
+            throw new NoSuchElementException("No value present");
+        }
+        //sprawdzenie czy wybrani sedziowie sa wolni
+        List<Referee> referees = refereeRepository.findRefereesByIds(match.getReferees().stream()
+                .map(refereeFunctionOnMatch -> refereeFunctionOnMatch.getReferee().getId()).collect(Collectors.toList()));
+        referees = referees.stream()
+                .filter(referee -> referee.getMatches().stream()
+                        .noneMatch(refereeOnMatch -> refereeOnMatch.getMatch()
+                                .getDateOfMatch().isEqual(match.getDateOfMatch())))
+                .collect(Collectors.toList());
+        //dodanie sedziow bedacych na edytowanym meczu jesli data jest ta sama
+        if (match.getDateOfMatch().isEqual(matchEntity.getDateOfMatch())) {
+            List<Long> matchRefereesId = new ArrayList<>();
+            matchRefereesId.addAll(matchEntity.getReferees().stream()
+                    .map(RefereeFunctionOnMatch::getReferee)
+                    .filter(referee -> match.getReferees().stream()
+                            .map(refereeFunctionOnMatch -> refereeFunctionOnMatch.getReferee().getId())
+                            .collect(Collectors.toList())
+                            .contains(referee.getId()))
+                    .map(Referee::getId)
+                    .collect(Collectors.toList()));
+            referees.addAll(refereeRepository.findRefereesByIds(matchRefereesId));
+        }
+        if (referees.size() != match.getReferees().size()) {
+            throw new NoSuchElementException("No value present");
+        }
+        //usuniecie startych sedziow i dodanie nowych
+        matchEntity.getReferees().forEach(r -> r.getReferee().getMatches().remove(r));
+        List<RefereeFunctionOnMatch> refereeFunctionOnMatchesToRemove = matchEntity.getReferees();
+        matchEntity.setReferees(new ArrayList<>());
+        refereeFunctionOnMatchRepository.deleteAll(refereeFunctionOnMatchesToRemove);
 
+        List<MatchFunction> matchFunctionList = matchFunctionRepository.findAll();
+        for(int i = 0; i < referees.size(); i++){
+            final int it = i;
+            RefereeFunctionOnMatch rfm = new RefereeFunctionOnMatch();
+            rfm.setReferee(referees.get(i));
+            rfm.setMatch(matchEntity);
+            rfm.setMatchFunction(matchFunctionList.stream()
+                    .filter(ref -> ref.getFunctionName().equals(match.getReferees().get(it).getMatchFunction().getFunctionName()))
+                    .findFirst().orElse(null));
+            matchEntity.getReferees().add(rfm);
+        }
+        matchEntity.setDateOfMatch(match.getDateOfMatch());
+        matchEntity.setDescription(match.getDescription());
+        entityManager.detach(matchEntity);
+        matchRepository.save(matchEntity);
     }
 
     @Override

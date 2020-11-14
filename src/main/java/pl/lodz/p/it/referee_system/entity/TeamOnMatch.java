@@ -14,10 +14,10 @@ public class TeamOnMatch {
     private Long id;
     @Column
     private boolean isGuest;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "team_id", referencedColumnName = "id")
     private Team team;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "match_id", referencedColumnName = "id")
     private Match match;
     @NotNull

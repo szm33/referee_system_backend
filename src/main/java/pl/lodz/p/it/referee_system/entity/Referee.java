@@ -1,13 +1,16 @@
 package pl.lodz.p.it.referee_system.entity;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Entity(name = "Referee")
-@Data
+@Getter
+@Setter
 public class Referee {
 
     @Id

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import pl.lodz.p.it.referee_system.dto.FreeRefereeAndMatchesDTO;
 import pl.lodz.p.it.referee_system.dto.MatchCreateDTO;
 import pl.lodz.p.it.referee_system.dto.MatchDTO;
+import pl.lodz.p.it.referee_system.dto.MatchToEditDTO;
 import pl.lodz.p.it.referee_system.entity.MatchFunction;
 import pl.lodz.p.it.referee_system.mapper.MatchMapper;
 import pl.lodz.p.it.referee_system.service.MatchService;
@@ -30,8 +31,8 @@ public class MatchController {
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<MatchDTO> getMatch(@PathVariable Long id) {
-        return ResponseEntity.ok(new MatchDTO(matchService.getMatch(id)));
+    public ResponseEntity<MatchToEditDTO> getMatch(@PathVariable Long id) {
+        return ResponseEntity.ok(new MatchToEditDTO(matchService.getMatch(id), matchService.getAllMatchFunctions()));
     }
 
     @GetMapping("referee/{id}")
@@ -46,7 +47,7 @@ public class MatchController {
 
     @PostMapping("free/referees-teams")
     public ResponseEntity<FreeRefereeAndMatchesDTO> getFreeRefereesAndMatches(@RequestBody LocalDate date) {
-        return ResponseEntity.ok(new FreeRefereeAndMatchesDTO(matchService.getFreeTeamsAndReferees(date.plusDays(1L))));
+        return ResponseEntity.ok(new FreeRefereeAndMatchesDTO(matchService.getFreeTeamsAndReferees(date)));
     }
 
     @PostMapping
@@ -61,7 +62,7 @@ public class MatchController {
     }
 
     @PutMapping
-    public ResponseEntity modifyMatch(@RequestBody MatchCreateDTO match) {
+    public ResponseEntity modifyMatch(@RequestBody MatchToEditDTO match) {
         matchService.editMatch(MatchMapper.map(match));
         return ResponseEntity.ok().build();
     }

@@ -14,13 +14,13 @@ public class RefereeFunctionOnMatch {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @OneToOne
+    @OneToOne(cascade = {CascadeType.DETACH,CascadeType.REFRESH})
     @JoinColumn(name = "match_function_id", referencedColumnName = "id")
     private MatchFunction matchFunction;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "referee_id", referencedColumnName = "id")
     private Referee referee;
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.DETACH})
     @JoinColumn(name = "match_id", referencedColumnName = "id")
     private Match match;
     @NotNull

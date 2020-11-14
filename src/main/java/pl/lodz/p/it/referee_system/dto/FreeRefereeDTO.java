@@ -9,6 +9,7 @@ public class FreeRefereeDTO {
     private Long id;
     private String name;
     private String function;
+    private String surname;
 
     public FreeRefereeDTO() {
     }
@@ -19,5 +20,10 @@ public class FreeRefereeDTO {
         this.surname = referee.getSurname();
     }
 
-    private String surname;
+    public FreeRefereeDTO(Referee referee, String function) {
+        this.id = referee.getId();
+        this.name = referee.getName();
+        this.surname = referee.getSurname();
+        this.function = function;
+    }
 }
