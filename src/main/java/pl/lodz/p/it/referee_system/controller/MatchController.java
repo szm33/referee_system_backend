@@ -67,4 +67,11 @@ public class MatchController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("replace/{match_id}")
+    public ResponseEntity initReplacement(@PathVariable Long matchId) {
+        matchService.initReplacement(matchId);
+        //wysylanie maili do wszystkich
+        return ResponseEntity.ok().build();
+    }
+
 }

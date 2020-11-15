@@ -1,12 +1,15 @@
 package pl.lodz.p.it.referee_system.entity;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 @Entity
-@Data
+@Getter
+@Setter
 public class RefereeFunctionOnMatch {
 //dodanie unikalnosci na id meczu i funkcji
     // dodanie unikalnosci na sedza mecz

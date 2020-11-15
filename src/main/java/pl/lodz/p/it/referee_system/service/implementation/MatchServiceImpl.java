@@ -13,6 +13,7 @@ import pl.lodz.p.it.referee_system.utill.ContextUtills;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,6 +36,8 @@ public class MatchServiceImpl implements MatchService {
     private EntityManager entityManager;
     @Autowired
     private RefereeFunctionOnMatchRepository refereeFunctionOnMatchRepository;
+    @Autowired
+    private ReplaceInformationsRepository replaceInformationsRepository;
 
     @Override
     public List<Match> getAllMatches() {
@@ -177,5 +180,26 @@ public class MatchServiceImpl implements MatchService {
     @Override
     public List<MatchFunction> getAllMatchFunctions() {
         return matchFunctionRepository.findAll();
+    }
+
+    @Override
+    public void initReplacement(Long machtId) {
+        Referee referee = refereeRepository.findByAccount_Username(ContextUtills.getUsername());
+        RefereeFunctionOnMatch refereeFunction = referee.getMatches().stream()
+                .filter(refereeFunctionOnMatch -> refereeFunctionOnMatch.getMatch().getId().equals(machtId))
+                .findFirst().orElseThrow();
+        replaceInformationsRepository.findByRefereeFunctionOnMatchOr(refereeFunction).ifPresent(r -> {
+            throw new NoSuchElementException("No value present");
+        });
+        LocalDateTime executeTime = LocalDateTime.of(refereeFunction.getMatch().getDateOfMatch(), refereeFunction.getMatch().getMatchTime());
+        ReplaceInformations replaceInformations = ReplaceInformations.builder()
+                .refereeFunctionOnMatch(refereeFunction)
+                .executeTime(executeTime)
+                .build();
+        replaceInformationsRepository.save(replaceInformations);
+    }
+
+    public void ReplaceReferee(ReplaceInformations replaceInformation) {
+
     }
 }

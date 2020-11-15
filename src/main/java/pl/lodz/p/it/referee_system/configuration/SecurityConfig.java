@@ -1,15 +1,10 @@
 package pl.lodz.p.it.referee_system.configuration;
 
-import org.apache.catalina.Context;
-import org.apache.catalina.connector.Connector;
-import org.apache.tomcat.util.descriptor.web.SecurityCollection;
-import org.apache.tomcat.util.descriptor.web.SecurityConstraint;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
-import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
@@ -26,12 +21,12 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import pl.lodz.p.it.referee_system.filter.RequestFilter;
 import pl.lodz.p.it.referee_system.service.implementation.AccountServiceImpl;
 
-import java.util.Arrays;
 import java.util.List;
 
 
 @Configuration
 @EnableWebSecurity
+@EnableScheduling
 @EnableGlobalMethodSecurity(securedEnabled = true)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 

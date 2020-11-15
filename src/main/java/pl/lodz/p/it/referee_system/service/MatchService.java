@@ -27,4 +27,6 @@ public interface MatchService {
 
     List<MatchFunction> getAllMatchFunctions();
 
+    void initReplacement(Long machtId);
+
 }

@@ -1,16 +1,20 @@
 package pl.lodz.p.it.referee_system.entity;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 @Entity
-@Data
+@Getter
+@Setter
 public class Match {
 
     @Id
@@ -23,6 +27,8 @@ public class Match {
     @Column(name = "date_of_match")
 //    @Temporal(TemporalType.TIMESTAMP)
     private LocalDate dateOfMatch;
+    @Column
+    private LocalTime matchTime;
     @Column
     private Integer homeScore;
     @Column
