@@ -1,10 +1,7 @@
 package pl.lodz.p.it.referee_system.service;
 
 import org.springframework.data.util.Pair;
-import pl.lodz.p.it.referee_system.entity.Match;
-import pl.lodz.p.it.referee_system.entity.MatchFunction;
-import pl.lodz.p.it.referee_system.entity.Referee;
-import pl.lodz.p.it.referee_system.entity.Team;
+import pl.lodz.p.it.referee_system.entity.*;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -28,5 +25,11 @@ public interface MatchService {
     List<MatchFunction> getAllMatchFunctions();
 
     void initReplacement(Long machtId);
+
+    void registerArrivalTime(ReplaceInformations replaceInformations);
+
+    void replaceReferee(ReplaceInformations replaceInformations);
+
+    List<ReplaceInformations> getAllReplaceInformations();
 
 }

@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 @Builder
 public class ReplaceInformations {
 
+    public ReplaceInformations() {}
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -23,6 +25,8 @@ public class ReplaceInformations {
     @OneToOne
     @JoinColumn(name = "referee_for_replacement_id", referencedColumnName = "id")
     private Referee refereeForReplacement;
-    private LocalDateTime arrivalTime;
+    private Long arrivalTime;
+    @Version
+    private Long version;
 
 }

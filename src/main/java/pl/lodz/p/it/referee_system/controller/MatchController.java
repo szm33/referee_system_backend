@@ -5,15 +5,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
-import pl.lodz.p.it.referee_system.dto.FreeRefereeAndMatchesDTO;
-import pl.lodz.p.it.referee_system.dto.MatchCreateDTO;
-import pl.lodz.p.it.referee_system.dto.MatchDTO;
-import pl.lodz.p.it.referee_system.dto.MatchToEditDTO;
+import pl.lodz.p.it.referee_system.dto.*;
 import pl.lodz.p.it.referee_system.entity.MatchFunction;
+import pl.lodz.p.it.referee_system.entity.ReplaceInformations;
 import pl.lodz.p.it.referee_system.mapper.MatchMapper;
 import pl.lodz.p.it.referee_system.service.MatchService;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -71,6 +70,15 @@ public class MatchController {
     public ResponseEntity initReplacement(@PathVariable Long matchId) {
         matchService.initReplacement(matchId);
         //wysylanie maili do wszystkich
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("arriveTime")
+    public ResponseEntity registerArrivalTime(@RequestBody ReplaceInformationsDTO replaceInformations) {
+        matchService.registerArrivalTime(ReplaceInformations.builder()
+                .id(replaceInformations.getId())
+                .arrivalTime(replaceInformations.getArrivalTime())
+                .build());
         return ResponseEntity.ok().build();
     }
 
