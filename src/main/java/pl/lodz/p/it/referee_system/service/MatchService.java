@@ -32,4 +32,6 @@ public interface MatchService {
 
     List<ReplaceInformations> getAllReplaceInformations();
 
+    ReplaceInformations getReplaceInformations(Long id);
+
 }

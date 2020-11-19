@@ -189,10 +189,13 @@ public class MatchServiceImpl implements MatchService {
         RefereeFunctionOnMatch refereeFunction = referee.getMatches().stream()
                 .filter(refereeFunctionOnMatch -> refereeFunctionOnMatch.getMatch().getId().equals(machtId))
                 .findFirst().orElseThrow();
-        replaceInformationsRepository.findByRefereeFunctionOnMatchOr(refereeFunction).ifPresent(r -> {
+        replaceInformationsRepository.findByRefereeFunctionOnMatch(refereeFunction).ifPresent(r -> {
             throw new NoSuchElementException("No value present");
         });
         LocalDateTime executeTime = LocalDateTime.of(refereeFunction.getMatch().getDateOfMatch(), refereeFunction.getMatch().getMatchTime());
+        if (LocalDateTime.now().isAfter(executeTime)) {
+            throw new NoSuchElementException("No value present");
+        }
         ReplaceInformations replaceInformations = ReplaceInformations.builder()
                 .refereeFunctionOnMatch(refereeFunction)
                 .executeTime(executeTime)
@@ -243,5 +246,10 @@ public class MatchServiceImpl implements MatchService {
     @Override
     public List<ReplaceInformations> getAllReplaceInformations() {
         return replaceInformationsRepository.findAll();
+    }
+
+    @Override
+    public ReplaceInformations getReplaceInformations(Long id) {
+        return replaceInformationsRepository.findById(id).orElseThrow();
     }
 }

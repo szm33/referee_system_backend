@@ -1,8 +1,6 @@
 package pl.lodz.p.it.referee_system.entity;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -11,9 +9,10 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Builder
+@AllArgsConstructor
 public class ReplaceInformations {
 
-    public ReplaceInformations() {}
+    public ReplaceInformations(){}
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

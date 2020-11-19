@@ -13,5 +13,5 @@ import java.util.Optional;
 @Transactional(propagation = Propagation.MANDATORY)
 public interface ReplaceInformationsRepository extends JpaRepository<ReplaceInformations, Long> {
 
-    Optional<ReplaceInformations> findByRefereeFunctionOnMatchOr(RefereeFunctionOnMatch refereeFunctionOnMatch);
+    Optional<ReplaceInformations> findByRefereeFunctionOnMatch(RefereeFunctionOnMatch refereeFunctionOnMatch);
 }

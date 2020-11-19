@@ -66,20 +66,25 @@ public class MatchController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("replace/{match_id}")
+    @PostMapping("replace/{matchId}")
     public ResponseEntity initReplacement(@PathVariable Long matchId) {
         matchService.initReplacement(matchId);
         //wysylanie maili do wszystkich
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("arriveTime")
-    public ResponseEntity registerArrivalTime(@RequestBody ReplaceInformationsDTO replaceInformations) {
+    @PostMapping("arrivalTime")
+    public ResponseEntity registerArrivalTime(@RequestBody MatchArrivalTimeDTO replaceInformations) {
         matchService.registerArrivalTime(ReplaceInformations.builder()
                 .id(replaceInformations.getId())
                 .arrivalTime(replaceInformations.getArrivalTime())
                 .build());
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("arrivalTime/{id}")
+    public ResponseEntity<ReplaceInformationsDTO> getReplaceInformations(@PathVariable Long id) {
+        return ResponseEntity.ok(new ReplaceInformationsDTO(matchService.getReplaceInformations(id)));
     }
 
 }

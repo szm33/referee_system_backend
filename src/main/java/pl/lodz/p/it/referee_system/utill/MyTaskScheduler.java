@@ -8,6 +8,9 @@ import pl.lodz.p.it.referee_system.service.MatchService;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Service
 public class MyTaskScheduler {
@@ -16,17 +19,19 @@ public class MyTaskScheduler {
 
     @Scheduled(fixedRate = 180000)
     public void print() {
-        for(ReplaceInformations replaceInformation: matchService.getAllReplaceInformations()
-            ){
-            LocalDateTime now = LocalDateTime.now();
-            if (replaceInformation.getExecuteTime().isAfter(now)) {
-                //inicjalizacja zastapienia
-                matchService.replaceReferee(replaceInformation);
-            }
-            else {
+//        List<ReplaceInformations> replaceInformationsList = matchService.getAllReplaceInformations();
+//        for(ReplaceInformations replaceInformation: matchService.getAllReplaceInformations()
+//            ){
+//            LocalDateTime now = LocalDateTime.now();
+//            if (replaceInformation.getExecuteTime().isAfter(now)) {
+//                //inicjalizacja zastapienia
+////                matchService.replaceReferee(replaceInformation);
+//                Logger.getGlobal().log(Level.SEVERE, replaceInformation.getExecuteTime().toString());
+//            }
+//            else {
+//
+//            }
 
-            }
-
-        }
+//        }
     }
 }
