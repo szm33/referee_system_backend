@@ -11,6 +11,7 @@ import pl.lodz.p.it.referee_system.entity.RefereeFunctionOnMatch;
 import pl.lodz.p.it.referee_system.utill.ContextUtills;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,7 @@ public class MatchToEditDTO {
     private LocalDate dateOfMatch;
     private String description;
     private String version;
+    private String timeOfMatch;
 
     public MatchToEditDTO() {
     }
@@ -35,6 +37,7 @@ public class MatchToEditDTO {
     public MatchToEditDTO(Match match, List<MatchFunction> functions) {
         this.id = match.getId();
         this.description = match.getDescription();
+        this.timeOfMatch = match.getMatchTime().toString();
         this.version = ContextUtills.encrypt(match.getVersion());
         this.dateOfMatch = match.getDateOfMatch();
         if (match.getTeams().get(0).isGuest()) {

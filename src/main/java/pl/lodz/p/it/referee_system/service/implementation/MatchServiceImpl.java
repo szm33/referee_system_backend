@@ -10,6 +10,8 @@ import pl.lodz.p.it.referee_system.entity.*;
 import pl.lodz.p.it.referee_system.repository.*;
 import pl.lodz.p.it.referee_system.service.MatchService;
 import pl.lodz.p.it.referee_system.utill.ContextUtills;
+import pl.lodz.p.it.referee_system.utill.ReplaceInformationsSender;
+import pl.lodz.p.it.referee_system.utill.ResetLinkSender;
 
 import javax.persistence.EntityManager;
 import java.time.LocalDate;
@@ -109,6 +111,7 @@ public class MatchServiceImpl implements MatchService {
         }
         matchEntity.setDateOfMatch(match.getDateOfMatch());
         matchEntity.setDescription(match.getDescription());
+        matchEntity.setMatchTime(match.getMatchTime());
         matchRepository.save(matchEntity);
     }
 
@@ -154,6 +157,10 @@ public class MatchServiceImpl implements MatchService {
         matchEntity.getReferees().forEach(r -> r.getReferee().getMatches().remove(r));
         List<RefereeFunctionOnMatch> refereeFunctionOnMatchesToRemove = matchEntity.getReferees();
         matchEntity.setReferees(new ArrayList<>());
+        //usuniecie automatycznych zastepstw w tym meczu
+//        replaceInformationsRepository.removeAllByRefereeFunctionOnMatch(refereeFunctionOnMatchesToRemove.stream()
+//                .map(RefereeFunctionOnMatch::getId)
+//                .collect(Collectors.toList()));
         refereeFunctionOnMatchRepository.deleteAll(refereeFunctionOnMatchesToRemove);
 
         List<MatchFunction> matchFunctionList = matchFunctionRepository.findAll();
@@ -169,6 +176,7 @@ public class MatchServiceImpl implements MatchService {
         }
         matchEntity.setDateOfMatch(match.getDateOfMatch());
         matchEntity.setDescription(match.getDescription());
+        matchEntity.setMatchTime(match.getMatchTime());
         entityManager.detach(matchEntity);
         matchRepository.save(matchEntity);
     }
@@ -200,7 +208,12 @@ public class MatchServiceImpl implements MatchService {
                 .refereeFunctionOnMatch(refereeFunction)
                 .executeTime(executeTime)
                 .build();
-        replaceInformationsRepository.save(replaceInformations);
+        ReplaceInformations savedReplaceInformations = replaceInformationsRepository.save(replaceInformations);
+        String link = ContextUtills.createReplaceInformationsLink(savedReplaceInformations.getId());
+        ReplaceInformationsSender replaceInformationsSender = new ReplaceInformationsSender(refereeRepository.findAll().stream()
+                .map(refereeEntity -> refereeEntity.getAccount().getEmail())
+                .collect(Collectors.toList()), link);
+        replaceInformationsSender.start();
     }
 
     @Override

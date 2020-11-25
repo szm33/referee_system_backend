@@ -35,8 +35,13 @@ public class ContextUtills {
     }
     private static String resetLinkAddress;
     @Value("${frontend.address.reset.link}")
-    public void setFrontendAddress(String address){
+    public void setFrontendResetLinkAddress(String address){
         ContextUtills.resetLinkAddress = address;
+    }
+    private static String replaceInformationsLinkAddress;
+    @Value("${frontend.address.replace.informations.link}")
+    public void setFrontendReplaceInformationsAddress(String address){
+        ContextUtills.replaceInformationsLinkAddress = address;
     }
 
 
@@ -108,6 +113,10 @@ public class ContextUtills {
 
     public static String createResetLink(String token) {
         return resetLinkAddress + token;
+    }
+
+    public static String createReplaceInformationsLink(Long id) {
+        return replaceInformationsLinkAddress + id;
     }
 
 }

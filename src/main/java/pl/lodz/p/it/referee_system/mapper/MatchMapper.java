@@ -5,6 +5,7 @@ import pl.lodz.p.it.referee_system.dto.MatchToEditDTO;
 import pl.lodz.p.it.referee_system.entity.*;
 import pl.lodz.p.it.referee_system.utill.ContextUtills;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,6 +16,8 @@ public class MatchMapper {
         Match match = new Match();
         match.setDescription(matchDTO.getDescription());
         match.setDateOfMatch(matchDTO.getDateOfMatch());
+        String[] time = matchDTO.getTimeOfMatch().split(":");
+        match.setMatchTime(LocalTime.of(Integer.valueOf(time[0]),Integer.valueOf(time[1])));
         Team homeTeam = new Team();
         Team awayTeam = new Team();
         homeTeam.setId(matchDTO.getHomeTeamId());
@@ -46,6 +49,8 @@ public class MatchMapper {
         match.setVersion(ContextUtills.decrypt(matchDTO.getVersion()));
         match.setDescription(matchDTO.getDescription());
         match.setDateOfMatch(matchDTO.getDateOfMatch());
+        String[] time = matchDTO.getTimeOfMatch().split(":");
+        match.setMatchTime(LocalTime.of(Integer.valueOf(time[0]),Integer.valueOf(time[1])));
         match.setReferees(matchDTO.getReferees().stream().map(freeRefereeDTO -> {
             RefereeFunctionOnMatch refereeFunctionOnMatch = new RefereeFunctionOnMatch();
             MatchFunction function = new MatchFunction();
