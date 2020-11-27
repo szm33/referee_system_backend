@@ -1,5 +1,6 @@
 package pl.lodz.p.it.referee_system.mapper;
 
+import pl.lodz.p.it.referee_system.dto.AccountAuthenticationDTO;
 import pl.lodz.p.it.referee_system.dto.AccountEditDTO;
 import pl.lodz.p.it.referee_system.dto.PasswordDTO;
 import pl.lodz.p.it.referee_system.dto.ResetPasswordDTO;
@@ -20,6 +21,13 @@ public class AccountMapper {
         Account account = new Account();
         account.setResetLink(resetPassword.getLink());
         account.setPassword(resetPassword.getPassword());
+        return account;
+    }
+
+    static public Account map(AccountAuthenticationDTO accountDTO) {
+        Account account = new Account();
+        account.setPassword(accountDTO.getPassword());
+        account.setUsername(accountDTO.getUsername());
         return account;
     }
 }

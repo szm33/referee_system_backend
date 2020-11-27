@@ -39,20 +39,26 @@ public class TokenUtills {
         return extractExpiration(token).before(new Date());
     }
 
-    public String generateToken(String username) {
+    public String generateToken(UserDetails user) {
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, username);
+        claims.put("roles", user.getAuthorities());
+        return createToken(claims, user.getUsername(), 10000);
     }
 
-    private String createToken(Map<String, Object> claims, String subject) {
+    public String generateRefreshToken(UserDetails user) {
+        Map<String, Object> claims = new HashMap<>();
+        return createToken(claims, user.getUsername(), 1000 * 60 * 60 * 24 * 7);
+    }
+
+    private String createToken(Map<String, Object> claims, String subject, int expirationTime) {
         return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + 1000000 * 60 * 30))
+                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(SignatureAlgorithm.HS256, SECRET_KEY).compact();
     }
 
     public boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
-        return (username.equals((userDetails.getUsername())));
-//        return (username.equals((userDetails.getUsername())) && !isTokenExpired(token));
+//        return (username.equals((userDetails.getUsername())));
+        return (username.equals((userDetails.getUsername())) && !isTokenExpired(token));
     }
 }

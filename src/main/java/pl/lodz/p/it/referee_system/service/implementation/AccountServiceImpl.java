@@ -3,6 +3,10 @@ package pl.lodz.p.it.referee_system.service.implementation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -10,15 +14,20 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 import pl.lodz.p.it.referee_system.dto.PasswordDTO;
+import pl.lodz.p.it.referee_system.dto.TokenDTO;
 import pl.lodz.p.it.referee_system.entity.Account;
+import pl.lodz.p.it.referee_system.entity.Token;
 import pl.lodz.p.it.referee_system.exception.AccountException;
 import pl.lodz.p.it.referee_system.exception.ApplicationException;
 import pl.lodz.p.it.referee_system.repository.AccountRepository;
 import pl.lodz.p.it.referee_system.repository.EntityManagerRepository;
+import pl.lodz.p.it.referee_system.repository.TokenRepository;
 import pl.lodz.p.it.referee_system.service.AccountService;
 import pl.lodz.p.it.referee_system.utill.ContextUtills;
 import pl.lodz.p.it.referee_system.utill.ResetLinkSender;
+import pl.lodz.p.it.referee_system.utill.TokenUtills;
 
 import java.util.Date;
 import java.util.List;
@@ -28,6 +37,15 @@ import java.util.Optional;
 @Service
 @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
 public class AccountServiceImpl implements AccountService {
+
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    TokenUtills tokenUtills;
+
+    @Autowired
+    TokenRepository tokenRepository;
 
    @Autowired
    private AccountRepository accountRepository;
@@ -130,4 +148,33 @@ public class AccountServiceImpl implements AccountService {
                     throw new NoSuchElementException("No value present");
                 });
     }
+
+    @Override
+    public Token login(Account account) {
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(account.getUsername(), account.getPassword()));
+        } catch (BadCredentialsException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e);
+        }
+        Account user = accountRepository.findAccountByUsername(account.getUsername()).orElseThrow();
+        Token token = new Token();
+        token.setRefreshToken(tokenUtills.generateRefreshToken(user));
+        token.setAccount(user);
+        tokenRepository.save(token);
+        return token;
+    }
+
+    @Override
+    public void logout(Token token) {
+        tokenRepository.deleteByRefreshToken(token.getRefreshToken());
+    }
+
+    @Override
+    public Token refresh(Token token) {
+        return tokenRepository.findByRefreshToken(token.getRefreshToken()).orElseThrow();
+    }
+
+
 }

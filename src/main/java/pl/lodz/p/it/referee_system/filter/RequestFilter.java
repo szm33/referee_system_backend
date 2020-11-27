@@ -1,5 +1,6 @@
 package pl.lodz.p.it.referee_system.filter;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,34 +26,35 @@ public class RequestFilter extends OncePerRequestFilter {
     @Autowired
     private TokenUtills jwtUtil;
 
-//    public JwtRequestFilter(MyUserDetailsService myUserDetailsService, JwtUtil jwtUtil) {
-//        this.myUserDetailsService = myUserDetailsService;
-//        this.jwtUtil = jwtUtil;
-//    }
-
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
                                     FilterChain filterChain) throws ServletException, IOException {
-        final String authorizationHeader = httpServletRequest.getHeader("Authorization");
+        try {
+            final String authorizationHeader = httpServletRequest.getHeader("Authorization");
 
-        String username;
-        String jwt;
 
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            jwt = authorizationHeader.substring(7);
-            username = jwtUtil.extractUsername(jwt);
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-                if (jwtUtil.validateToken(jwt, userDetails)) {
-                    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities());
-                    usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
-                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+            if(authorizationHeader != null && authorizationHeader.startsWith("Bearer ")){
+                //mozna zrezygnowac z uzywania bazy i z tokena wyciagac wszystko i sprawdzac tylko date wygasniecia
 
-                }
+//            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = this.userDetailsService.loadUserByUsername(jwtUtil.extractUsername(authorizationHeader.substring(7)));
+//                if (jwtUtil.validateToken(jwt, userDetails)) {
+                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
+                usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
+                SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+
+
             }
+            filterChain.doFilter(httpServletRequest, httpServletResponse);
         }
-        filterChain.doFilter(httpServletRequest, httpServletResponse);
+        catch(ExpiredJwtException ex){
+            httpServletResponse.setStatus(401);
+//            httpServletResponse.sendError(401);
+        }
+        catch(Exception ex){
+            httpServletResponse.setStatus(403);
+        }
     }
 }
 
