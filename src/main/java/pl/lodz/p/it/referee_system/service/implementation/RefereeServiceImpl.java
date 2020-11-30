@@ -5,6 +5,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -39,11 +40,10 @@ public class RefereeServiceImpl implements RefereeService {
     @Autowired
     private EntityManagerRepository entityManager;
 
-//    @Secured("ROLE_ADMIN")
     public Referee getReferee(Long id) {
         return refereeRepository.findById(id).orElseThrow();
     }
-//    @Secured("ROLE_REFEREE")
+
     public List<Referee> getAllReferees() {
         return refereeRepository.findAll();
     }

@@ -3,6 +3,8 @@ package pl.lodz.p.it.referee_system.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -38,6 +40,7 @@ public class AccountController {
     private AccountService accountService;
 
     @PostMapping("/login")
+    @PreAuthorize("isAnonymous()")
     public ResponseEntity<TokenDTO> createAuthenticationToken(@Valid @RequestBody AccountAuthenticationDTO authenticateAccount) {
         TokenDTO tokenDTO = new TokenDTO();
         Token token = accountService.login(AccountMapper.map(authenticateAccount));
@@ -47,6 +50,7 @@ public class AccountController {
     }
 
     @PostMapping("refresh")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<TokenDTO> refreshToken(@RequestBody TokenDTO tokenDTO) {
         Token token = accountService.refresh(Token.builder()
                 .refreshToken(tokenDTO.getRefreshToken())
@@ -56,6 +60,7 @@ public class AccountController {
     }
 
     @PostMapping("logout")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity logout(@RequestBody TokenDTO token) {
         accountService.logout(Token.builder()
                 .refreshToken(token.getRefreshToken())
@@ -64,6 +69,7 @@ public class AccountController {
     }
 
     @GetMapping("account")
+    @Secured("ROLE_ADMIN")
     public ResponseEntity<List<AccountDTO>> getAllAccounts() {
         return ResponseEntity.ok((accountService.getAllAccounts().stream()
                 .map(AccountDTO::new)
@@ -72,6 +78,7 @@ public class AccountController {
 
 
     @GetMapping("account/{id}")
+    @Secured("ROLE_ADMIN")
     public ResponseEntity<AccountDTO> getAccount(@PathVariable("id") Long id) {
         return ResponseEntity.ok(new AccountDTO(accountService.getAccount(id)));
     }
@@ -79,29 +86,34 @@ public class AccountController {
 //    private EmailUtills emailUtills;
 
     @GetMapping("locale")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<StringDTO> getLocale() throws MessagingException {
         return ResponseEntity.ok(new StringDTO(ContextUtills.getLanguage()));
     }
 
     @GetMapping("myaccount")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<AccountDTO> getMyAccount() {
         return ResponseEntity.ok(new AccountDTO(accountService.getMyAccount()));
     }
 
     //edycja konta tylko dla wlasciciela edyja reszty danych imie,email,nazwisko ranga dla admina
     @PutMapping("account")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity editAccount(@Valid @RequestBody AccountEditDTO account) {
         accountService.editAccount(AccountMapper.map(account));
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("account/reset/{username}")
+    @PreAuthorize("permitAll()")
     public ResponseEntity sendResetLink(@PathVariable String username) {
         accountService.sendResetLink(username);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("validate/{link}")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<StringDTO> validateResetLink(@PathVariable String link) {
         StringDTO stringDTO = new StringDTO("false");
         if(accountService.validateResetLink(link)){
@@ -111,6 +123,7 @@ public class AccountController {
     }
 
     @PostMapping("account/reset")
+    @PreAuthorize("permitAll()")
     public ResponseEntity resetPassword(@RequestBody ResetPasswordDTO resetPassword) {
         if(!resetPassword.getPassword().equals(resetPassword.getConfirmedPassword())){
             throw AccountException.exceptionForNotMatchingPasswords();
@@ -121,6 +134,7 @@ public class AccountController {
 
     //haslo zmoenia tylko posiadacz
     @PostMapping("account/password")
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity changePassword(@Valid @RequestBody PasswordDTO password) {
         try {
             accountService.changePassword(password);

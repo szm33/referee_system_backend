@@ -25,7 +25,6 @@ public class MyTaskScheduler {
     @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
     @Scheduled(fixedRate = 10000)
     public void print() {
-        List<ReplaceInformations> replaceInformationsList = matchService.getAllReplaceInformations();
         for(ReplaceInformations replaceInformation: matchService.getAllReplaceInformations()
             ){
             LocalDateTime now = LocalDateTime.now();

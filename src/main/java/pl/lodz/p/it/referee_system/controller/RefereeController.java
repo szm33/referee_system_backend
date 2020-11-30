@@ -3,6 +3,8 @@ package pl.lodz.p.it.referee_system.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +38,7 @@ public class RefereeController {
 
 
     @GetMapping
+    @PreAuthorize("permitAll()")
     public ResponseEntity<List<RefereeListDTO>> getAllReferee() {
         return ResponseEntity.ok((refereeService.getAllReferees().stream()
                 .map(RefereeListDTO::new)
@@ -43,36 +46,35 @@ public class RefereeController {
     }
 
     @GetMapping("{id}")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<RefereeDTO> getReferee(@PathVariable("id") Long id) {
         return ResponseEntity.ok(new RefereeDTO(refereeService.getReferee(id)));
     }
     //dostepna jednie dla admina
 
     @PutMapping
+    @Secured("ROLE_ADMIN")
     public ResponseEntity editReferee(@Valid @RequestBody RefereeDTO referee) {
         refereeService.editReferee(RefereeMapper.map(referee));
         return ResponseEntity.ok().build();
     }
 
     @PostMapping
+    @Secured("ROLE_ADMIN")
     public ResponseEntity addReferee(@Valid @RequestBody RefereeCreateDTO referee) {
         refereeService.addReferee(RefereeMapper.map(referee));
         return ResponseEntity.ok().build();
     }
 
-//    @ResponseStatus(HttpStatus.BAD_REQUEST)
-//    @ExceptionHandler(NoSuchElementException.class)
-//    public String noRefereeFound() {
-//        return "Referee not found";
-//    }
-
     @PostMapping("{id}/active")
+    @Secured("ROLE_ADMIN")
     public ResponseEntity changeActiveStatus(@PathVariable Long id) {
         refereeService.changeActiveStatus(id);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("license")
+    @PreAuthorize("permitAll()")
     public ResponseEntity<List<License>> getLicenses() {
         return ResponseEntity.ok(licenseService.getAllLicense());
     }

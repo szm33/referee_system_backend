@@ -42,7 +42,7 @@ public class TokenUtills {
     public String generateToken(UserDetails user) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("roles", user.getAuthorities());
-        return createToken(claims, user.getUsername(), 10000);
+        return createToken(claims, user.getUsername(), 1000 * 60 * 15);
     }
 
     public String generateRefreshToken(UserDetails user) {
