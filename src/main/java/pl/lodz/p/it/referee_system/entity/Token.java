@@ -22,6 +22,6 @@ public class Token {
     @OneToOne
     @JoinColumn(name = "account_id", referencedColumnName = "id")
     private Account account;
-    @Column
+    @Column(unique = true)
     private String refreshToken;
 }

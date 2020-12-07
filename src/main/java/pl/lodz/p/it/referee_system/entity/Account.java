@@ -1,6 +1,5 @@
 package pl.lodz.p.it.referee_system.entity;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
@@ -21,19 +20,20 @@ public class Account implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @Column(name = "username", unique = true)
+    @Column(name = "username", unique = true, nullable = false)
     private String username;
+    @Column(nullable = false)
     private String password;
+    @Column(nullable = false)
     private String email;
     @Column(name = "is_active", columnDefinition = "boolean default true")
     private boolean isActive;
     @OneToOne(mappedBy = "account", fetch = FetchType.LAZY, cascade = CascadeType.DETACH)
     private Referee referee;
-    @NotNull
     @Version
-    @Column
+    @Column(nullable = false)
     private long version;
-    @Column(name = "reset_link")
+    @Column(name = "reset_link", unique = true)
     private String resetLink;
 
 

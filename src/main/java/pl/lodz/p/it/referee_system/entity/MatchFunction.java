@@ -1,6 +1,5 @@
 package pl.lodz.p.it.referee_system.entity;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,6 +13,6 @@ public class MatchFunction {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @Column(name = "function_name")
+    @Column(name = "function_name", unique = true)
     private String functionName;
 }

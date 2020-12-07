@@ -22,6 +22,7 @@ public class TeamMapper {
         League league = new League();
         league.setName(teamDTO.getLeague());
         team.setName(teamDTO.getName());
+        team.setId(teamDTO.getId());
         team.setVersion(ContextUtills.decrypt(teamDTO.getVersion()));
         team.setLeague(league);
         return team;

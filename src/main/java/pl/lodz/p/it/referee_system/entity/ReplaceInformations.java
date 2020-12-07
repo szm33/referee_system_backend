@@ -20,12 +20,14 @@ public class ReplaceInformations {
     @OneToOne
     @JoinColumn(name = "referee_function_id", referencedColumnName = "id")
     private RefereeFunctionOnMatch refereeFunctionOnMatch;
+    @Column(nullable = false)
     private LocalDateTime executeTime;
     @OneToOne
     @JoinColumn(name = "referee_for_replacement_id", referencedColumnName = "id")
     private Referee refereeForReplacement;
     private Long arrivalTime;
     @Version
+    @Column(nullable = false)
     private Long version;
 
 }

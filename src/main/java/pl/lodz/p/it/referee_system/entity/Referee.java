@@ -1,6 +1,5 @@
 package pl.lodz.p.it.referee_system.entity;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,30 +16,29 @@ public class Referee {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "surname")
+    @Column(name = "surname", nullable = false)
     private String surname;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "account_id", referencedColumnName = "id")
     private Account account;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "role_id", referencedColumnName = "id")
     private Role role;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "license_id", referencedColumnName = "id")
     private License license;
 
     @OneToMany(mappedBy = "referee", cascade = CascadeType.ALL)
     private List<RefereeFunctionOnMatch> matches;
 
-    @NotNull
     @Version
-    @Column
+    @Column(nullable = false)
     private long version;
 
 

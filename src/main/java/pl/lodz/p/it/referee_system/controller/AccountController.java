@@ -18,6 +18,7 @@ import pl.lodz.p.it.referee_system.entity.Token;
 import pl.lodz.p.it.referee_system.exception.AccountException;
 import pl.lodz.p.it.referee_system.mapper.AccountMapper;
 import pl.lodz.p.it.referee_system.service.AccountService;
+import pl.lodz.p.it.referee_system.service.DictionariesService;
 import pl.lodz.p.it.referee_system.utill.ContextUtills;
 //import pl.lodz.p.it.referee_system.utill.EmailUtills;
 import pl.lodz.p.it.referee_system.utill.TokenUtills;
@@ -38,6 +39,8 @@ public class AccountController {
     private TokenUtills tokenUtills;
     @Autowired
     private AccountService accountService;
+    @Autowired
+    private DictionariesService dictionariesService;
 
     @PostMapping("/login")
     @PreAuthorize("isAnonymous()")
@@ -143,6 +146,12 @@ public class AccountController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Password do not match");
         }
 
+    }
+
+    @GetMapping("dictionaries")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<Dictionaries> getAllDictionaries() {
+        return ResponseEntity.ok(dictionariesService.getAllDictionaries());
     }
 }
 

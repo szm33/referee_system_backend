@@ -49,6 +49,7 @@ public class TeamServiceImpl implements TeamService {
     public Team getTeam(Long id) {
         return teamRepository.findById(id).orElseThrow();
     }
+
     @Override
     public void editTeam(Team team) {
         teamRepository.findById(team.getId()).ifPresentOrElse(teamEntity -> {

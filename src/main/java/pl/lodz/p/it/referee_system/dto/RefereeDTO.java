@@ -14,6 +14,7 @@ public class RefereeDTO {
     private String license;
     private String version;
     private Long accountVersion;
+    private String username;
 
     public RefereeDTO(){}
 
@@ -25,5 +26,6 @@ public class RefereeDTO {
         this.license = referee.getLicense().getType();
         this.version = ContextUtills.encrypt(referee.getVersion());
         this.accountVersion = referee.getAccount().getVersion();
+        this.username = referee.getAccount().getUsername();
     }
 }

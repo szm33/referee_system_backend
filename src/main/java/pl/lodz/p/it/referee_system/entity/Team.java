@@ -1,11 +1,9 @@
 package pl.lodz.p.it.referee_system.entity;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,8 +22,7 @@ public class Team {
     private League league;
     @OneToMany(mappedBy = "team", cascade = CascadeType.ALL)
     private List<TeamOnMatch> matches = new ArrayList<>();
-    @NotNull
     @Version
-    @Column
+    @Column(nullable = false)
     private long version;
 }
