@@ -10,8 +10,8 @@ import java.util.List;
 @Data
 public class MatchCreateDTO {
 
-    private Long awayTeamId;
-    private Long homeTeamId;
+    private TeamOnMatchDTO awayTeam;
+    private TeamOnMatchDTO homeTeam;
     private String description;
     private LocalDate dateOfMatch;
     private List<FreeRefereeDTO> referees = new ArrayList<>();

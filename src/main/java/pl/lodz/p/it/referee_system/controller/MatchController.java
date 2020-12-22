@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import pl.lodz.p.it.referee_system.dto.*;
+import pl.lodz.p.it.referee_system.entity.Match;
 import pl.lodz.p.it.referee_system.entity.MatchFunction;
 import pl.lodz.p.it.referee_system.entity.ReplaceInformations;
 import pl.lodz.p.it.referee_system.mapper.MatchMapper;
@@ -35,7 +36,8 @@ public class MatchController {
     @GetMapping("{id}")
     @Secured("ROLE_ADMIN")
     public ResponseEntity<MatchToEditDTO> getMatch(@PathVariable Long id) {
-        return ResponseEntity.ok(new MatchToEditDTO(matchService.getMatch(id), matchService.getAllMatchFunctions()));
+        Match match = matchService.getMatch(id);
+        return ResponseEntity.ok(new MatchToEditDTO(match, matchService.getFreeTeamsAndReferees(match.getDateOfMatch()).getSecond()));
     }
 
     @GetMapping("referee/{id}")
@@ -58,7 +60,7 @@ public class MatchController {
 
     @PostMapping
     @Secured("ROLE_ADMIN")
-    public ResponseEntity createMatch(@RequestBody MatchCreateDTO match) {
+    public ResponseEntity createMatch(@RequestBody MatchDTO match) {
         matchService.createMatch(MatchMapper.map(match));
         return ResponseEntity.ok().build();
     }
@@ -71,7 +73,7 @@ public class MatchController {
 
     @PutMapping
     @Secured("ROLE_ADMIN")
-    public ResponseEntity modifyMatch(@RequestBody MatchToEditDTO match) {
+    public ResponseEntity modifyMatch(@RequestBody MatchDTO match) {
         matchService.editMatch(MatchMapper.map(match));
         return ResponseEntity.ok().build();
     }

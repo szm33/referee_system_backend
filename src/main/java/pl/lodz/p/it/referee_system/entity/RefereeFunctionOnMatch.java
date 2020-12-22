@@ -8,8 +8,9 @@ import javax.persistence.*;
 @Entity
 @Getter
 @Setter
-@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"match_id", "match_function_id"}),
-        @UniqueConstraint(columnNames = {"match_id", "referee_id"})})
+@Table
+//        (uniqueConstraints = {@UniqueConstraint(columnNames = {"match_id", "match_function_id"}),
+//        @UniqueConstraint(columnNames = {"match_id", "referee_id"})})
 public class RefereeFunctionOnMatch {
 
     @Id

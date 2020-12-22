@@ -20,47 +20,43 @@ import java.util.stream.Collectors;
 @Data
 public class MatchToEditDTO {
 
-    private Long id;
-    private List<String> functions;
-    private List<FreeRefereeDTO> referees;
-//    private Map<MatchFunction,FreeRefereeDTO> refereesFunction = new HashMap<>();
-    private FreeTeamDTO homeTeam;
-    private FreeTeamDTO awayTeam;
-    private LocalDate dateOfMatch;
-    private String description;
-    private String version;
-    private String timeOfMatch;
+   private MatchDTO match;
+   private List<FreeRefereeDTO> freeReferees;
 
     public MatchToEditDTO() {
     }
 
-    public MatchToEditDTO(Match match, List<MatchFunction> functions) {
-        this.id = match.getId();
-        this.description = match.getDescription();
-        this.timeOfMatch = match.getMatchTime().toString();
-        this.version = ContextUtills.encrypt(match.getVersion());
-        this.dateOfMatch = match.getDateOfMatch();
-        if (match.getTeams().get(0).isGuest()) {
-            this.awayTeam = new FreeTeamDTO(match.getTeams().get(0).getTeam());
-            this.homeTeam = new FreeTeamDTO(match.getTeams().get(1).getTeam());
-        }
-        else {
-            this.awayTeam = new FreeTeamDTO(match.getTeams().get(1).getTeam());
-            this.homeTeam = new FreeTeamDTO(match.getTeams().get(0).getTeam());
-        }
-        this.functions = functions.stream()
-                .map(MatchFunction::getFunctionName)
+    public MatchToEditDTO(Match match, List<Referee> referees) {
+        this.match = new MatchDTO(match);
+        this.freeReferees = referees.stream()
+                .map(FreeRefereeDTO::new)
                 .collect(Collectors.toList());
-        this.referees = match.getReferees().stream()
-                .map(refereeFunctionOnMatch -> new FreeRefereeDTO(refereeFunctionOnMatch.getReferee(),
-                        refereeFunctionOnMatch.getMatchFunction().getFunctionName()))
-                .collect(Collectors.toList());
-//        functions.forEach(function -> {
-//            this.refereesFunction.put(function,match.getReferees().stream()
-//                    .filter(referee -> referee.getMatchFunction().equals(function))
-//                    .findFirst()
-//                    .map(refereeFunction -> new FreeRefereeDTO(refereeFunction.getReferee()))
-//                    .orElse(null));
-//        });
+//        this.id = match.getId();
+//        this.description = match.getDescription();
+//        this.timeOfMatch = match.getMatchTime().toString();
+//        this.version = ContextUtills.encrypt(match.getVersion());
+//        this.dateOfMatch = match.getDateOfMatch();
+//        if (match.getTeams().get(0).isGuest()) {
+//            this.awayTeam = new FreeTeamDTO(match.getTeams().get(0).getTeam());
+//            this.homeTeam = new FreeTeamDTO(match.getTeams().get(1).getTeam());
+//        }
+//        else {
+//            this.awayTeam = new FreeTeamDTO(match.getTeams().get(1).getTeam());
+//            this.homeTeam = new FreeTeamDTO(match.getTeams().get(0).getTeam());
+//        }
+//        this.functions = functions.stream()
+//                .map(MatchFunction::getFunctionName)
+//                .collect(Collectors.toList());
+//        this.referees = match.getReferees().stream()
+//                .map(refereeFunctionOnMatch -> new FreeRefereeDTO(refereeFunctionOnMatch.getReferee(),
+//                        refereeFunctionOnMatch.getMatchFunction().getFunctionName()))
+//                .collect(Collectors.toList());
+////        functions.forEach(function -> {
+////            this.refereesFunction.put(function,match.getReferees().stream()
+////                    .filter(referee -> referee.getMatchFunction().equals(function))
+////                    .findFirst()
+////                    .map(refereeFunction -> new FreeRefereeDTO(refereeFunction.getReferee()))
+////                    .orElse(null));
+////        });
     }
 }
