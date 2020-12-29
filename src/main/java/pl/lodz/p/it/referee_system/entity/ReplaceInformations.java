@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -22,10 +23,12 @@ public class ReplaceInformations {
     private RefereeFunctionOnMatch refereeFunctionOnMatch;
     @Column(nullable = false)
     private LocalDateTime executeTime;
-    @OneToOne
-    @JoinColumn(name = "referee_for_replacement_id", referencedColumnName = "id")
-    private Referee refereeForReplacement;
-    private Long arrivalTime;
+    @OneToMany(mappedBy = "replaceInformations", cascade = CascadeType.ALL)
+    private List<ReplacementCandidate> candidates;
+//    @OneToOne
+//    @JoinColumn(name = "referee_for_replacement_id", referencedColumnName = "id")
+//    private Referee refereeForReplacement;
+//    private Long arrivalTime;
     @Version
     @Column(nullable = false)
     private Long version;

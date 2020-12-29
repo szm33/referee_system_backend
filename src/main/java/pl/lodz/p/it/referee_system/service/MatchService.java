@@ -35,16 +35,17 @@ public interface MatchService {
     List<MatchFunction> getAllMatchFunctions();
 
     @PreAuthorize("isAuthenticated()")
-    void initReplacement(Long machtId);
+    void initReplacement(Long matchId);
 
     @PreAuthorize("isAuthenticated()")
-    void registerArrivalTime(ReplaceInformations replaceInformations);
+    void registerArrivalTime(ReplacementCandidate replacementCandidate);
 
     void replaceReferee(ReplaceInformations replaceInformations);
 
-    List<ReplaceInformations> getAllReplaceInformations();
-
     @PreAuthorize("isAuthenticated()")
     ReplaceInformations getReplaceInformations(Long id);
+
+    @PreAuthorize("isAuthenticated()")
+    List<ReplaceInformations> getAllReplaceInformations();
 
 }

@@ -1,8 +1,10 @@
 package pl.lodz.p.it.referee_system.dto;
 
 import lombok.Data;
+import org.hibernate.validator.constraints.NotEmpty;
 import pl.lodz.p.it.referee_system.entity.Match;
 
+import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -17,7 +19,10 @@ public class MatchDTO {
     private TeamOnMatchDTO homeTeam;
     private TeamOnMatchDTO awayTeam;
     private LocalDate dateOfMatch;
+    @Pattern(regexp = "^[a-zA-Z_0-9:,?/@() ]+$")
     private String description;
+    @NotEmpty
+    @Pattern(regexp = "^[0-9]{2}:[0-9]{2}+$")
     private String timeOfMatch;
 
     public MatchDTO() {

@@ -7,6 +7,8 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pl.lodz.p.it.referee_system.entity.*;
+import pl.lodz.p.it.referee_system.exception.ApplicationException;
+import pl.lodz.p.it.referee_system.exception.ExceptionMessages;
 import pl.lodz.p.it.referee_system.repository.*;
 import pl.lodz.p.it.referee_system.service.MatchService;
 import pl.lodz.p.it.referee_system.utill.ContextUtills;
@@ -17,10 +19,7 @@ import javax.persistence.EntityManager;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -80,7 +79,7 @@ public class MatchServiceImpl implements MatchService {
                                 .getDateOfMatch().isEqual(match.getDateOfMatch())))
                 .collect(Collectors.toList());
         if(teams.size() != 2){
-            throw new NoSuchElementException("No value present");
+            throw new ApplicationException(ExceptionMessages.MATCH_TEAMS_ERROR);
         }
 
         matchEntity.setTeams(match.getTeams());
@@ -97,7 +96,7 @@ public class MatchServiceImpl implements MatchService {
                                 .getDateOfMatch().isEqual(match.getDateOfMatch())))
                 .collect(Collectors.toList());
         if(referees.size() != match.getReferees().size()){
-            throw new NoSuchElementException("No value present");
+            throw new ApplicationException(ExceptionMessages.MATCH_REFEREES_ERROR);
         }
 //        List<MatchFunction> matchFunctions = matchFunctionRepository.findAll();
 //        match.getReferees().get(0).setMatchFunction(matchFunctions.stream().filter(matchFunction -> matchFunction.getFunctionName().equals(match)).findFirst());
@@ -114,7 +113,7 @@ public class MatchServiceImpl implements MatchService {
         matchEntity.setMatchTime(match.getMatchTime());
         return matchRepository.save(matchEntity);
     }
-
+//odfiltrowac sedziow ktozy zglosili sie na zastapienie TODO
     @Override
     public void editMatch(Match match) {
         Match matchEntity = matchRepository.findById(match.getId()).orElseThrow();
@@ -127,7 +126,7 @@ public class MatchServiceImpl implements MatchService {
                         .noneMatch(teamOnMatch -> teamOnMatch.getMatch()
                                 .getDateOfMatch().isEqual(match.getDateOfMatch())))
                 .count() != 2){
-            throw new NoSuchElementException("No value present");
+            throw new ApplicationException(ExceptionMessages.MATCH_TEAMS_ERROR);
         }
         //sprawdzenie czy wybrani sedziowie sa wolni
         List<Referee> referees = refereeRepository.findRefereesByIds(match.getReferees().stream()
@@ -151,7 +150,7 @@ public class MatchServiceImpl implements MatchService {
             referees.addAll(refereeRepository.findRefereesByIds(matchRefereesId));
         }
         if(referees.size() != match.getReferees().size()){
-            throw new NoSuchElementException("No value present");
+            throw new ApplicationException(ExceptionMessages.MATCH_REFEREES_ERROR);
         }
         //usuniecie startych sedziow i dodanie nowych
         matchEntity.getReferees().forEach(r -> r.getReferee().getMatches().remove(r));
@@ -192,16 +191,16 @@ public class MatchServiceImpl implements MatchService {
     }
 
     @Override
-    public void initReplacement(Long machtId) {
+    public void initReplacement(Long matchId) {
         Referee referee = refereeRepository.findByAccount_Username(ContextUtills.getUsername());
         RefereeFunctionOnMatch refereeFunction = referee.getMatches().stream()
-                .filter(refereeFunctionOnMatch -> refereeFunctionOnMatch.getMatch().getId().equals(machtId))
+                .filter(refereeFunctionOnMatch -> refereeFunctionOnMatch.getMatch().getId().equals(matchId))
                 .findFirst().orElseThrow();
         replaceInformationsRepository.findByRefereeFunctionOnMatch(refereeFunction).ifPresent(r -> {
             throw new NoSuchElementException("No value present");
         });
         LocalDateTime executeTime = LocalDateTime.of(refereeFunction.getMatch().getDateOfMatch(), refereeFunction.getMatch().getMatchTime());
-        if (LocalDateTime.now().isAfter(executeTime)) {
+        if(LocalDateTime.now().isAfter(executeTime)){
             throw new NoSuchElementException("No value present");
         }
         ReplaceInformations replaceInformations = ReplaceInformations.builder()
@@ -216,42 +215,57 @@ public class MatchServiceImpl implements MatchService {
         replaceInformationsSender.start();
     }
 
+    //zastanowic sie co z kwestja ponownego zapisu przez tego samego uzytkownika
     @Override
-    public void registerArrivalTime(ReplaceInformations replaceInformations) {
-        ReplaceInformations replaceInformationsEntity = replaceInformationsRepository.findById(replaceInformations.getId()).orElseThrow();
-        long arrivalTimeInMinutes = replaceInformations.getArrivalTime();
+    public void registerArrivalTime(ReplacementCandidate replacementCandidate) {
+        ReplaceInformations replaceInformationsEntity = replaceInformationsRepository.findById(replacementCandidate.getReplaceInformations().getId()).orElseThrow();
+        long arrivalTimeInMinutes = replacementCandidate.getArrivalTime();
+
+        List<ReplacementCandidate> candidates = replaceInformationsEntity.getCandidates().stream().
+                sorted((Comparator.comparing(ReplacementCandidate::getArrivalTime))).collect(Collectors.toList());
         LocalDateTime nowDate = LocalDateTime.now();
         LocalDateTime arrivalDate = nowDate.plusMinutes(arrivalTimeInMinutes);
-//                ChronoUnit.MINUTES.between(LocalDateTime.now(), replaceInformations.getArrivalTime());
         LocalDateTime dateOfMatch = LocalDateTime.of(replaceInformationsEntity.getRefereeFunctionOnMatch().getMatch().getDateOfMatch(),
                 replaceInformationsEntity.getRefereeFunctionOnMatch().getMatch().getMatchTime());
-        if (replaceInformationsEntity.getRefereeForReplacement() == null || replaceInformationsEntity.getArrivalTime() > arrivalTimeInMinutes){
-            if (arrivalDate.isBefore(dateOfMatch.minusMinutes(70))){
-                replaceInformationsEntity.setArrivalTime(arrivalTimeInMinutes);
-                replaceInformationsEntity.setRefereeForReplacement(refereeRepository.findByAccount_Username(ContextUtills.getUsername()));
+
+        if(candidates.size() < 1 || candidates.get(0).getArrivalTime() > replacementCandidate.getArrivalTime()){
+            //sprawwdzenie czasu przy zastepowaniu
+
+            if(arrivalDate.isBefore(dateOfMatch.minusMinutes(70))){
                 replaceInformationsEntity.setExecuteTime(dateOfMatch.minusMinutes(70 + arrivalTimeInMinutes));
-            } else if (arrivalDate.isAfter(dateOfMatch.minusMinutes(70)) && arrivalDate.isBefore(dateOfMatch)){
-                replaceInformationsEntity.setArrivalTime(arrivalTimeInMinutes);
-                replaceInformationsEntity.setRefereeForReplacement(refereeRepository.findByAccount_Username(ContextUtills.getUsername()));
+            } else if(arrivalDate.isAfter(dateOfMatch.minusMinutes(70)) && arrivalDate.isBefore(dateOfMatch)){
                 replaceInformationsEntity.setExecuteTime(arrivalDate.plusMinutes(10));
-            } else if (arrivalDate.isBefore(dateOfMatch.plusMinutes(20))){
-                replaceInformationsEntity.setArrivalTime(arrivalTimeInMinutes);
-                replaceInformationsEntity.setRefereeForReplacement(refereeRepository.findByAccount_Username(ContextUtills.getUsername()));
+            } else if(arrivalDate.isBefore(dateOfMatch.plusMinutes(20))){
                 replaceInformationsEntity.setExecuteTime(arrivalDate.plusMinutes(5));
             }
         }
+
+        replacementCandidate.setRefereeForReplacement(refereeRepository.findByAccount_Username(ContextUtills.getUsername()));
+        replacementCandidate.setReplaceInformations(replaceInformationsEntity);
+        replaceInformationsEntity.getCandidates().add(replacementCandidate);
+
         replaceInformationsRepository.save(replaceInformationsEntity);
     }
-//zastanowic sie nad kaskadami i nad detach czy potrzebne tu i tam wyzej
+
+    //zastanowic sie nad kaskadami i nad detach czy potrzebne tu i tam wyzej
     @Override
     public void replaceReferee(ReplaceInformations replaceInformation) {
         ReplaceInformations replaceInformationsEntity = replaceInformationsRepository.findById(replaceInformation.getId()).orElseThrow();
-        if (replaceInformationsEntity.getRefereeForReplacement() != null) {
-            RefereeFunctionOnMatch refereeFunctionOnMatch = refereeFunctionOnMatchRepository
-                    .findById(replaceInformationsEntity.getRefereeFunctionOnMatch().getId()).orElseThrow();
-            refereeFunctionOnMatch.getReferee().getMatches().remove(refereeFunctionOnMatch);
-            refereeFunctionOnMatch.setReferee(refereeRepository.findById(replaceInformationsEntity.getRefereeForReplacement().getId()).orElseThrow());
-            refereeFunctionOnMatchRepository.save(refereeFunctionOnMatch);
+        List<ReplacementCandidate> candidates = replaceInformationsEntity.getCandidates().stream().
+                sorted((Comparator.comparing(ReplacementCandidate::getArrivalTime))).collect(Collectors.toList());
+
+        if(candidates.size() != 0){
+            LocalDateTime nowDate = LocalDateTime.now();
+            LocalDateTime arrivalDate = nowDate.plusMinutes(candidates.get(0).getArrivalTime());
+            LocalDateTime dateOfMatch = LocalDateTime.of(replaceInformationsEntity.getRefereeFunctionOnMatch().getMatch().getDateOfMatch(),
+                    replaceInformationsEntity.getRefereeFunctionOnMatch().getMatch().getMatchTime());
+            if (arrivalDate.isBefore(dateOfMatch.plusMinutes(30))) {
+                RefereeFunctionOnMatch refereeFunctionOnMatch = refereeFunctionOnMatchRepository
+                        .findById(replaceInformationsEntity.getRefereeFunctionOnMatch().getId()).orElseThrow();
+                refereeFunctionOnMatch.getReferee().getMatches().remove(refereeFunctionOnMatch);
+                refereeFunctionOnMatch.setReferee(refereeRepository.findById(candidates.get(0).getRefereeForReplacement().getId()).orElseThrow());
+                refereeFunctionOnMatchRepository.save(refereeFunctionOnMatch);
+            }
         }
         replaceInformationsRepository.delete(replaceInformationsEntity);
     }

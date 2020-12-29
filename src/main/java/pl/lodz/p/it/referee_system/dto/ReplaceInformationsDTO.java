@@ -1,24 +1,23 @@
 package pl.lodz.p.it.referee_system.dto;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import pl.lodz.p.it.referee_system.entity.Match;
 import pl.lodz.p.it.referee_system.entity.ReplaceInformations;
-
-import java.time.LocalDateTime;
-
+import pl.lodz.p.it.referee_system.utill.ContextUtills;
 
 @Getter
 @Setter
 public class ReplaceInformationsDTO {
 
     public ReplaceInformationsDTO(ReplaceInformations replaceInformations) {
-        Match match = replaceInformations.getRefereeFunctionOnMatch().getMatch();
-        this.description = match.getDescription();
-        this.dateOfMatch = LocalDateTime.of(match.getDateOfMatch(), match.getMatchTime());
+        this.id = replaceInformations.getId();
+        this.match = new MatchDTO(replaceInformations.getRefereeFunctionOnMatch().getMatch());
+        this.replaceFunction = replaceInformations.getRefereeFunctionOnMatch().getMatchFunction().getFunctionName();
+        this.refereeCandidate = replaceInformations.getCandidates().stream()
+                .anyMatch(candidate -> candidate.getRefereeForReplacement().getAccount().getUsername().equals(ContextUtills.getUsername()));
     }
-
-    private LocalDateTime dateOfMatch;
-    private String description;
+    private Long id;
+    private MatchDTO match;
+    private boolean refereeCandidate;
+    private String replaceFunction;
 }

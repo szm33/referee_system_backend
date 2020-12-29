@@ -12,6 +12,8 @@ public class ExceptionMessages {
     public static final String INCORRECT_PASSWORD = "error.incorrect.password";
     public static final String USERNAME_NOT_UNIQUE= "error.username.not.unique";
     public static final String TEAM_NAME_NOT_UNIQUE= "error.team.name.not.unique";
+    public static final String MATCH_TEAMS_ERROR= "error.match.teams";
+    public static final String MATCH_REFEREES_ERROR= "error.match.referees";
 
     public static final List<String> exceptionMessages;
 
@@ -24,5 +26,7 @@ public class ExceptionMessages {
         exceptionMessages.add(PASSWORD_VALIDATION_ERROR);
         exceptionMessages.add(USERNAME_NOT_UNIQUE);
         exceptionMessages.add(TEAM_NAME_NOT_UNIQUE);
+        exceptionMessages.add(MATCH_TEAMS_ERROR);
+        exceptionMessages.add(MATCH_REFEREES_ERROR);
     }
 }
