@@ -11,11 +11,14 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import pl.lodz.p.it.referee_system.dto.*;
 import pl.lodz.p.it.referee_system.entity.Token;
-import pl.lodz.p.it.referee_system.exception.AccountException;
+import pl.lodz.p.it.referee_system.exception.ApplicationException;
+import pl.lodz.p.it.referee_system.exception.ExceptionMessages;
 import pl.lodz.p.it.referee_system.mapper.AccountMapper;
 import pl.lodz.p.it.referee_system.service.AccountService;
 import pl.lodz.p.it.referee_system.service.DictionariesService;
@@ -103,7 +106,11 @@ public class AccountController {
     //edycja konta tylko dla wlasciciela edyja reszty danych imie,email,nazwisko ranga dla admina
     @PutMapping("account")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity editAccount(@Valid @RequestBody AccountEditDTO account) {
+    @Validated
+    public ResponseEntity editAccount(@RequestBody @Valid AccountEditDTO account, BindingResult result) {
+        if(result.hasErrors()){
+            throw new ApplicationException(ExceptionMessages.VALIDATION_ERROR);
+        }
         accountService.editAccount(AccountMapper.map(account));
         return ResponseEntity.ok().build();
     }
@@ -129,7 +136,7 @@ public class AccountController {
     @PreAuthorize("permitAll()")
     public ResponseEntity resetPassword(@RequestBody ResetPasswordDTO resetPassword) {
         if(!resetPassword.getPassword().equals(resetPassword.getConfirmedPassword())){
-            throw AccountException.exceptionForNotMatchingPasswords();
+            throw new ApplicationException(ExceptionMessages.PASSWORDS_NOT_THE_SAME);
         }
         accountService.resetPassword(AccountMapper.map(resetPassword));
         return ResponseEntity.ok().build();
@@ -138,14 +145,12 @@ public class AccountController {
     //haslo zmoenia tylko posiadacz
     @PostMapping("account/password")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity changePassword(@Valid @RequestBody PasswordDTO password) {
-        try {
-            accountService.changePassword(password);
-            return ResponseEntity.ok().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Password do not match");
+    public ResponseEntity changePassword(@Valid @RequestBody PasswordDTO password, BindingResult result) {
+        if (result.hasErrors()) {
+            throw new ApplicationException(ExceptionMessages.PASSWORD_VALIDATION_ERROR);
         }
-
+        accountService.changePassword(password);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("dictionaries")

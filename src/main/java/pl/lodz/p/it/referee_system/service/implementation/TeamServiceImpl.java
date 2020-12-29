@@ -7,7 +7,8 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pl.lodz.p.it.referee_system.entity.Team;
-import pl.lodz.p.it.referee_system.exception.TeamException;
+import pl.lodz.p.it.referee_system.exception.ApplicationException;
+import pl.lodz.p.it.referee_system.exception.ExceptionMessages;
 import pl.lodz.p.it.referee_system.repository.EntityManagerRepository;
 import pl.lodz.p.it.referee_system.repository.LeagueRepository;
 import pl.lodz.p.it.referee_system.repository.TeamRepository;
@@ -36,7 +37,7 @@ public class TeamServiceImpl implements TeamService {
         }
         //dodac unique na parrze liga nazwa
         catch (DataIntegrityViolationException e) {
-            throw TeamException.exceptionForNotUniqueNameInLeague(e);
+            throw new ApplicationException(ExceptionMessages.TEAM_NAME_NOT_UNIQUE);
         }
     }
 
@@ -52,15 +53,21 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public void editTeam(Team team) {
-        teamRepository.findById(team.getId()).ifPresentOrElse(teamEntity -> {
-            entityManager.detach(teamEntity);
-            teamEntity.setVersion(team.getVersion());
-            teamEntity.setName(team.getName());
-            teamEntity.setLeague(leagueRepository.findByName(team.getLeague().getName()).orElseThrow());
-            teamRepository.save(teamEntity);
-        }, () -> {
-            throw new NoSuchElementException("No value present");
-        });
+        try {
+            teamRepository.findById(team.getId()).ifPresentOrElse(teamEntity -> {
+                entityManager.detach(teamEntity);
+                teamEntity.setVersion(team.getVersion());
+                teamEntity.setName(team.getName());
+                teamEntity.setLeague(leagueRepository.findByName(team.getLeague().getName()).orElseThrow());
+                teamRepository.save(teamEntity);
+                teamRepository.flush();
+            }, () -> {
+                throw new NoSuchElementException("No value present");
+            });
+        }
+          catch (DataIntegrityViolationException e) {
+            throw new ApplicationException(ExceptionMessages.TEAM_NAME_NOT_UNIQUE);
+        }
     }
 
     @Override

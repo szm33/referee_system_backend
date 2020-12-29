@@ -16,11 +16,10 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import pl.lodz.p.it.referee_system.dto.PasswordDTO;
-import pl.lodz.p.it.referee_system.dto.TokenDTO;
 import pl.lodz.p.it.referee_system.entity.Account;
 import pl.lodz.p.it.referee_system.entity.Token;
-import pl.lodz.p.it.referee_system.exception.AccountException;
 import pl.lodz.p.it.referee_system.exception.ApplicationException;
+import pl.lodz.p.it.referee_system.exception.ExceptionMessages;
 import pl.lodz.p.it.referee_system.repository.AccountRepository;
 import pl.lodz.p.it.referee_system.repository.EntityManagerRepository;
 import pl.lodz.p.it.referee_system.repository.TokenRepository;
@@ -94,18 +93,18 @@ public class AccountServiceImpl implements AccountService {
             accountRepository.save(accountEntity);
         }
         catch(OptimisticLockingFailureException e) {
-            throw ApplicationException.exceptionForOptimisticLock(e);
+            throw new ApplicationException(ExceptionMessages.OPTIMISTIC_LOCK_PROBLEM, e);
         }
     }
 
     @Override
     public void changePassword(PasswordDTO passwordDTO) {
         if (!passwordDTO.getNewPassword().equals(passwordDTO.getConfirmedPassword())) {
-            throw AccountException.exceptionForNotMatchingPasswords();
+            throw new ApplicationException(ExceptionMessages.PASSWORDS_NOT_THE_SAME);
         }
         Account accountEntity = accountRepository.findAccountByUsername(ContextUtills.getUsername()).orElseThrow();
         if (!passwordEncoder.matches(passwordDTO.getOldPassword(),accountEntity.getPassword())) {
-            throw AccountException.exceptionForIncorectPassword();
+            throw new ApplicationException(ExceptionMessages.INCORRECT_PASSWORD);
         }
         accountEntity.setPassword(passwordEncoder.encode(passwordDTO.getNewPassword()));
         accountRepository.save(accountEntity);

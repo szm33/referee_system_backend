@@ -60,9 +60,8 @@ public class MatchController {
 
     @PostMapping
     @Secured("ROLE_ADMIN")
-    public ResponseEntity createMatch(@RequestBody MatchDTO match) {
-        matchService.createMatch(MatchMapper.map(match));
-        return ResponseEntity.ok().build();
+    public ResponseEntity<MatchDTO> createMatch(@RequestBody MatchDTO match) {
+        return ResponseEntity.ok(new MatchDTO(matchService.createMatch(MatchMapper.map(match))));
     }
 
     @GetMapping("functions")

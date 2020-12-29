@@ -23,7 +23,7 @@ public interface MatchService {
     Match getMatch(Long id);
 
     @Secured("ROLE_ADMIN")
-    void createMatch(Match match);
+    Match createMatch(Match match);
 
     @Secured("ROLE_ADMIN")
     void editMatch(Match match);

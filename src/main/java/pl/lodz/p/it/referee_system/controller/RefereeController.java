@@ -8,12 +8,14 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import pl.lodz.p.it.referee_system.dto.RefereeCreateDTO;
 import pl.lodz.p.it.referee_system.dto.RefereeDTO;
 import pl.lodz.p.it.referee_system.dto.RefereeListDTO;
 import pl.lodz.p.it.referee_system.entity.License;
-import pl.lodz.p.it.referee_system.exception.RefereeException;
+import pl.lodz.p.it.referee_system.exception.ApplicationException;
+import pl.lodz.p.it.referee_system.exception.ExceptionMessages;
 import pl.lodz.p.it.referee_system.mapper.RefereeMapper;
 import pl.lodz.p.it.referee_system.service.LicenseService;
 import pl.lodz.p.it.referee_system.service.RefereeService;
@@ -54,14 +56,20 @@ public class RefereeController {
 
     @PutMapping
     @Secured("ROLE_ADMIN")
-    public ResponseEntity editReferee(@Valid @RequestBody RefereeDTO referee) {
+    public ResponseEntity editReferee(@Valid @RequestBody RefereeDTO referee, BindingResult result) {
+        if (result.hasErrors()) {
+            throw new ApplicationException(ExceptionMessages.VALIDATION_ERROR);
+        }
         refereeService.editReferee(RefereeMapper.map(referee));
         return ResponseEntity.ok().build();
     }
 
     @PostMapping
     @Secured("ROLE_ADMIN")
-    public ResponseEntity addReferee(@Valid @RequestBody RefereeCreateDTO referee) {
+    public ResponseEntity addReferee(@Valid @RequestBody RefereeCreateDTO referee, BindingResult result) {
+        if (result.hasErrors()) {
+            throw new ApplicationException(ExceptionMessages.VALIDATION_ERROR);
+        }
         refereeService.addReferee(RefereeMapper.map(referee));
         return ResponseEntity.ok().build();
     }

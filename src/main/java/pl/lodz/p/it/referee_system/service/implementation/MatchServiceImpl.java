@@ -67,7 +67,7 @@ public class MatchServiceImpl implements MatchService {
     // moze czy data jest w przod
     //sprawdzamy czy sedziowie sa wolni+
     @Override
-    public void createMatch(Match match) {
+    public Match createMatch(Match match) {
         Match matchEntity = new Match();
 //        List<Team> teams = teamRepository.findTeamsByIdIfFree(match.getTeams().stream()
 //                        .map(teamOnMatch -> teamOnMatch.getTeam().getId()).collect(Collectors.toList()),
@@ -112,7 +112,7 @@ public class MatchServiceImpl implements MatchService {
         matchEntity.setDateOfMatch(match.getDateOfMatch());
         matchEntity.setDescription(match.getDescription());
         matchEntity.setMatchTime(match.getMatchTime());
-        matchRepository.save(matchEntity);
+        return matchRepository.save(matchEntity);
     }
 
     @Override

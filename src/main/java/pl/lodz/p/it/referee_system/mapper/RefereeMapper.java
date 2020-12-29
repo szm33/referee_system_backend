@@ -29,7 +29,7 @@ public class RefereeMapper {
         referee.setName(refereeDTO.getName());
         referee.setSurname(refereeDTO.getSurname());
         account.setEmail(refereeDTO.getEmail());
-        account.setVersion(refereeDTO.getAccountVersion());
+        account.setVersion( ContextUtills.decrypt(refereeDTO.getAccountVersion()));
         referee.setLicense(license);
         referee.setAccount(account);
         referee.setVersion(ContextUtills.decrypt(refereeDTO.getVersion()));

@@ -3,9 +3,6 @@ package pl.lodz.p.it.referee_system.service.implementation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;
-import org.springframework.data.jpa.repository.Lock;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
@@ -13,17 +10,14 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pl.lodz.p.it.referee_system.entity.Referee;
 import pl.lodz.p.it.referee_system.exception.ApplicationException;
-import pl.lodz.p.it.referee_system.exception.RefereeException;
+import pl.lodz.p.it.referee_system.exception.ExceptionMessages;
 import pl.lodz.p.it.referee_system.repository.LicenseRepository;
 import pl.lodz.p.it.referee_system.repository.RefereeRepository;
 import pl.lodz.p.it.referee_system.repository.RoleRepository;
 import pl.lodz.p.it.referee_system.repository.EntityManagerRepository;
 import pl.lodz.p.it.referee_system.service.RefereeService;
 
-import javax.persistence.LockModeType;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Service
 @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
@@ -59,7 +53,7 @@ public class RefereeServiceImpl implements RefereeService {
         refereeRepository.flush();
         }
         catch (DataIntegrityViolationException e) {
-            throw RefereeException.exceptionForNotUniqueUsername(e);
+            throw new ApplicationException(ExceptionMessages.USERNAME_NOT_UNIQUE);
         }
     }
 
@@ -77,7 +71,7 @@ public class RefereeServiceImpl implements RefereeService {
             refereeRepository.save(refereeEntity);
         }
         catch (OptimisticLockingFailureException e) {
-            throw ApplicationException.exceptionForOptimisticLock(e);
+            throw new ApplicationException(ExceptionMessages.OPTIMISTIC_LOCK_PROBLEM);
         }
     }
 
