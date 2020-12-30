@@ -113,7 +113,8 @@ public class MatchServiceImpl implements MatchService {
         matchEntity.setMatchTime(match.getMatchTime());
         return matchRepository.save(matchEntity);
     }
-//odfiltrowac sedziow ktozy zglosili sie na zastapienie TODO
+
+    //odfiltrowac sedziow ktozy zglosili sie na zastapienie TODO
     @Override
     public void editMatch(Match match) {
         Match matchEntity = matchRepository.findById(match.getId()).orElseThrow();
@@ -199,7 +200,7 @@ public class MatchServiceImpl implements MatchService {
         replaceInformationsRepository.findByRefereeFunctionOnMatch(refereeFunction).ifPresent(r -> {
             throw new NoSuchElementException("No value present");
         });
-        LocalDateTime executeTime = LocalDateTime.of(refereeFunction.getMatch().getDateOfMatch(), refereeFunction.getMatch().getMatchTime());
+        LocalDateTime executeTime = LocalDateTime.of(refereeFunction.getMatch().getDateOfMatch(), refereeFunction.getMatch().getMatchTime()).minusMinutes(15);
         if(LocalDateTime.now().isAfter(executeTime)){
             throw new NoSuchElementException("No value present");
         }
@@ -259,7 +260,7 @@ public class MatchServiceImpl implements MatchService {
             LocalDateTime arrivalDate = nowDate.plusMinutes(candidates.get(0).getArrivalTime());
             LocalDateTime dateOfMatch = LocalDateTime.of(replaceInformationsEntity.getRefereeFunctionOnMatch().getMatch().getDateOfMatch(),
                     replaceInformationsEntity.getRefereeFunctionOnMatch().getMatch().getMatchTime());
-            if (arrivalDate.isBefore(dateOfMatch.plusMinutes(30))) {
+            if(arrivalDate.isBefore(dateOfMatch.plusMinutes(30))){
                 RefereeFunctionOnMatch refereeFunctionOnMatch = refereeFunctionOnMatchRepository
                         .findById(replaceInformationsEntity.getRefereeFunctionOnMatch().getId()).orElseThrow();
                 refereeFunctionOnMatch.getReferee().getMatches().remove(refereeFunctionOnMatch);
@@ -278,5 +279,42 @@ public class MatchServiceImpl implements MatchService {
     @Override
     public ReplaceInformations getReplaceInformations(Long id) {
         return replaceInformationsRepository.findById(id).orElseThrow();
+    }
+
+    @Override
+    public void replacementResign(Long replaceId) {
+        ReplaceInformations replaceInformations = replaceInformationsRepository.findById(replaceId).orElseThrow();
+        List<ReplacementCandidate> candidates = replaceInformations.getCandidates().stream().
+                sorted((Comparator.comparing(ReplacementCandidate::getArrivalTime))).collect(Collectors.toList());
+        ReplacementCandidate resignCandidate = candidates.stream()
+                .filter(info -> info.getRefereeForReplacement().getAccount().getUsername()
+                        .equals(ContextUtills.getUsername()))
+                .findFirst().orElseThrow();
+        if(candidates.get(0).equals(resignCandidate)){
+            Match match = replaceInformations.getRefereeFunctionOnMatch().getMatch();
+            LocalDateTime dateOfMatch = LocalDateTime.of(match.getDateOfMatch(), match.getMatchTime());
+            if(candidates.size() == 1){
+                replaceInformations.setExecuteTime(dateOfMatch.minusMinutes(15));
+            }
+            else {
+                LocalDateTime nowDate = LocalDateTime.now();
+                long arrivalTimeInMinutes = candidates.get(1).getArrivalTime();
+                LocalDateTime arrivalDate = nowDate.plusMinutes(arrivalTimeInMinutes);
+                if(arrivalDate.isBefore(dateOfMatch.minusMinutes(70))){
+                    replaceInformations.setExecuteTime(dateOfMatch.minusMinutes(70 + arrivalTimeInMinutes));
+                } else if(arrivalDate.isAfter(dateOfMatch.minusMinutes(70)) && arrivalDate.isBefore(dateOfMatch)){
+                    replaceInformations.setExecuteTime(arrivalDate.plusMinutes(10));
+                } else if(arrivalDate.isBefore(dateOfMatch.plusMinutes(20))){
+                    replaceInformations.setExecuteTime(arrivalDate.plusMinutes(5));
+                }
+                else {
+                    replaceInformations.setExecuteTime(LocalDateTime.of(replaceInformations.getRefereeFunctionOnMatch().getMatch().getDateOfMatch(),
+                            replaceInformations.getRefereeFunctionOnMatch().getMatch().getMatchTime()));
+                }
+            }
+        }
+        replaceInformations.getCandidates().remove(resignCandidate);
+        entityManager.remove(resignCandidate);
+        replaceInformationsRepository.save(replaceInformations);
     }
 }

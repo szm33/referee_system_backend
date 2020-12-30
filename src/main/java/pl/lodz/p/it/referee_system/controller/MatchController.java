@@ -118,4 +118,12 @@ public class MatchController {
                 .map(ReplaceInformationsDTO::new)
                 .collect(Collectors.toList()));
     }
+
+    @PostMapping("resign")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity replacementResign(@RequestBody Long replaceId) {
+        this.matchService.replacementResign(replaceId);
+        return ResponseEntity.ok().build();
+    }
+
 }
