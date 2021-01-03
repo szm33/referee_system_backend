@@ -277,8 +277,12 @@ public class MatchServiceImpl implements MatchService {
     }
 
     @Override
-    public ReplaceInformations getReplaceInformations(Long id) {
-        return replaceInformationsRepository.findById(id).orElseThrow();
+    public List<ReplaceInformations> getMatchReplaceInformations(Long matchId) {
+        List<ReplaceInformations> replaceInformations = replaceInformationsRepository.findAllByRefereeFunctionOnMatch_Match_Id(matchId);
+        if (replaceInformations.isEmpty()) {
+            throw new NoSuchElementException("No value present");
+        }
+        return replaceInformations;
     }
 
     @Override
@@ -316,5 +320,16 @@ public class MatchServiceImpl implements MatchService {
         replaceInformations.getCandidates().remove(resignCandidate);
         entityManager.remove(resignCandidate);
         replaceInformationsRepository.save(replaceInformations);
+    }
+
+    @Override
+    public void confirmReplacement(ReplaceInformations replaceInformations) {
+        ReplaceInformations replaceInformationsEntity = replaceInformationsRepository.findById(replaceInformations.getId()).orElseThrow();
+        replaceInformationsEntity.getRefereeFunctionOnMatch().getReferee().getMatches()
+                .remove(replaceInformationsEntity.getRefereeFunctionOnMatch().getMatch());
+        replaceInformationsEntity.getRefereeFunctionOnMatch().setReferee(refereeRepository.
+                findById(replaceInformations.getCandidates().get(0).getId()).orElseThrow());
+        refereeFunctionOnMatchRepository.save(replaceInformationsEntity.getRefereeFunctionOnMatch());
+        replaceInformationsRepository.delete(replaceInformationsEntity);
     }
 }

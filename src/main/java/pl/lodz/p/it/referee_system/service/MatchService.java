@@ -43,12 +43,15 @@ public interface MatchService {
     void replaceReferee(ReplaceInformations replaceInformations);
 
     @PreAuthorize("isAuthenticated()")
-    ReplaceInformations getReplaceInformations(Long id);
+    List<ReplaceInformations> getMatchReplaceInformations(Long matchId);
 
     @PreAuthorize("isAuthenticated()")
     List<ReplaceInformations> getAllReplaceInformations();
 
     @PreAuthorize("isAuthenticated()")
     void replacementResign(Long replaceId);
+
+    @Secured("ROLE_ADMIN")
+    void confirmReplacement(ReplaceInformations replaceInformations);
 
 }

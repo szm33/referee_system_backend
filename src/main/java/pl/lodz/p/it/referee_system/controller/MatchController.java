@@ -17,6 +17,7 @@ import pl.lodz.p.it.referee_system.exception.ApplicationException;
 import pl.lodz.p.it.referee_system.exception.ExceptionMessages;
 import pl.lodz.p.it.referee_system.mapper.MatchMapper;
 import pl.lodz.p.it.referee_system.service.MatchService;
+import pl.lodz.p.it.referee_system.utill.ContextUtills;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
@@ -105,10 +106,12 @@ public class MatchController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("arrivalTime/{id}")
+    @GetMapping("matchReplaceInformations/{matchId}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ReplaceInformationsDTO> getReplaceInformations(@PathVariable Long id) {
-        return ResponseEntity.ok(new ReplaceInformationsDTO(matchService.getReplaceInformations(id)));
+    public ResponseEntity<List<ReplaceInformationsDetailsDTO>> getMatchReplaceInformations(@PathVariable Long matchId) {
+        return ResponseEntity.ok(matchService.getMatchReplaceInformations(matchId).stream()
+                .map(ReplaceInformationsDetailsDTO::new)
+                .collect(Collectors.toList()));
     }
 
     @GetMapping("replacesInformations")
@@ -123,6 +126,19 @@ public class MatchController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity replacementResign(@RequestBody Long replaceId) {
         this.matchService.replacementResign(replaceId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("confirmReplacement")
+    @Secured("ROLE_ADMIN")
+    public ResponseEntity confirmReplacement(@RequestBody ConfirmReplacemnetDTO confirmReplacemnetDTO) {
+        this.matchService.confirmReplacement(ReplaceInformations.builder()
+                .id(confirmReplacemnetDTO.getReplaceInformationsId())
+                .candidates(List.of(ReplacementCandidate.builder().
+                        id(confirmReplacemnetDTO.getConfirmedCandidateId())
+                        .build()))
+                .version(ContextUtills.decrypt(confirmReplacemnetDTO.getVersion()))
+                .build());
         return ResponseEntity.ok().build();
     }
 

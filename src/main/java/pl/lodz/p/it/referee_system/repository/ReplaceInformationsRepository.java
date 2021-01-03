@@ -21,4 +21,6 @@ public interface ReplaceInformationsRepository extends JpaRepository<ReplaceInfo
 
     @Query(value = "DELETE FROM ReplaceInformations r where r.refereeFunctionOnMatch.id in :refereesFunctionOnMatchIds")
     void removeAllByRefereeFunctionOnMatch(@Param("refereesFunctionOnMatchIds") Collection<Long> refereesFunctionOnMatchIds);
+
+    List<ReplaceInformations> findAllByRefereeFunctionOnMatch_Match_Id(Long matchId);
 }
