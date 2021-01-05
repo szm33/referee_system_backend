@@ -29,6 +29,7 @@ import pl.lodz.p.it.referee_system.utill.TokenUtills;
 
 import javax.mail.MessagingException;
 import javax.validation.*;
+import javax.validation.constraints.Pattern;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.ResourceBundle;
@@ -118,6 +119,9 @@ public class AccountController {
     @GetMapping("account/reset/{username}")
     @PreAuthorize("permitAll()")
     public ResponseEntity sendResetLink(@PathVariable String username) {
+        if (username.isEmpty() || !username.matches("^[a-zA-Z0-9]+$")) {
+            throw new ApplicationException(ExceptionMessages.VALIDATION_ERROR);
+        }
         accountService.sendResetLink(username);
         return ResponseEntity.ok().build();
     }
@@ -134,7 +138,7 @@ public class AccountController {
 
     @PostMapping("account/reset")
     @PreAuthorize("permitAll()")
-    public ResponseEntity resetPassword(@RequestBody ResetPasswordDTO resetPassword) {
+    public ResponseEntity resetPassword(@Valid @RequestBody ResetPasswordDTO resetPassword) {
         if(!resetPassword.getPassword().equals(resetPassword.getConfirmedPassword())){
             throw new ApplicationException(ExceptionMessages.PASSWORDS_NOT_THE_SAME);
         }

@@ -153,9 +153,8 @@ public class AccountServiceImpl implements AccountService {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(account.getUsername(), account.getPassword()));
-        } catch (BadCredentialsException e) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_ACCEPTABLE, e.getMessage(), e);
+        } catch (Exception e) {
+            throw new ApplicationException(ExceptionMessages.CREDENTIAL_ERROR);
         }
         Account user = accountRepository.findAccountByUsername(account.getUsername()).orElseThrow();
         Token token = new Token();

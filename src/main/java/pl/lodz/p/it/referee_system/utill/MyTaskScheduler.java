@@ -23,7 +23,7 @@ public class MyTaskScheduler {
     private MatchService matchService;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
-    @Scheduled(fixedRate = 10000)
+//    @Scheduled(fixedRate = 10000)
     public void print() {
         for(ReplaceInformations replaceInformation: matchService.getAllReplaceInformations()
             ){

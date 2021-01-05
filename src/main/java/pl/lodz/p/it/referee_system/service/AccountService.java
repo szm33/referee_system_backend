@@ -21,7 +21,7 @@ public interface AccountService extends UserDetailsService {
     @PreAuthorize("isAuthenticated()")
     Account getMyAccount();
 
-    @Secured("ROLE_ADMIN")
+    @PreAuthorize("isAuthenticated()")
     void editAccount(Account account);
 
     @PreAuthorize("isAuthenticated()")
