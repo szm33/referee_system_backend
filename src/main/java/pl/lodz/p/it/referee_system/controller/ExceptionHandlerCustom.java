@@ -1,5 +1,6 @@
 package pl.lodz.p.it.referee_system.controller;
 
+import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +39,9 @@ class ExceptionHandlerCustom {
         Logger.getGlobal().log(Level.SEVERE, e.getMessage() + " Klasa: " + e.getClass());
         if (ExceptionMessages.exceptionMessages.contains(e.getMessage())) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(new StringDTO(ContextUtills.getMessage(e.getMessage())));
+        }
+        else if (e instanceof CannotAcquireLockException) {
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(new StringDTO(ContextUtills.getMessage(ExceptionMessages.SERIALIZABLE_ERROR)));
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new StringDTO(""));
     }

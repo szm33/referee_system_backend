@@ -1,9 +1,9 @@
 package pl.lodz.p.it.referee_system.dto;
 
 import lombok.Data;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 
 @Data
