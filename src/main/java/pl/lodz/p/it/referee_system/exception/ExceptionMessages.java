@@ -19,6 +19,8 @@ public class ExceptionMessages {
     public static final String DATE_OF_MATCH_ERROR = "error.date.of.match";
     public static final String SERIALIZABLE_ERROR = "error.serializable";
     public static final String MATCH_FUNCTIONS_ERROR = "error.match.functions";
+    public static final String INIT_REPLACEMENT_ERROR = "error.init.replacement";
+    public static final String INIT_REPLACEMENT_TIME_ERROR = "error.init.replacement.time";
 
     public static final List<String> exceptionMessages;
 
@@ -37,5 +39,7 @@ public class ExceptionMessages {
         exceptionMessages.add(OWN_REPLACE_ERROR);
         exceptionMessages.add(DATE_OF_MATCH_ERROR);
         exceptionMessages.add(MATCH_FUNCTIONS_ERROR);
+        exceptionMessages.add(INIT_REPLACEMENT_ERROR);
+        exceptionMessages.add(INIT_REPLACEMENT_TIME_ERROR);
     }
 }

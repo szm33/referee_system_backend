@@ -1,6 +1,7 @@
 package pl.lodz.p.it.referee_system.service.implementation;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.util.Pair;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -288,11 +289,11 @@ public class MatchServiceImpl implements MatchService {
                 .filter(refereeFunctionOnMatch -> refereeFunctionOnMatch.getMatch().getId().equals(matchId))
                 .findFirst().orElseThrow();
         replaceInformationsRepository.findByRefereeFunctionOnMatch(refereeFunction).ifPresent(r -> {
-            throw new NoSuchElementException("No value present");
+            throw new ApplicationException(ExceptionMessages.INIT_REPLACEMENT_ERROR);
         });
         LocalDateTime executeTime = LocalDateTime.of(refereeFunction.getMatch().getDateOfMatch(), refereeFunction.getMatch().getMatchTime()).minusMinutes(15);
         if(LocalDateTime.now().isAfter(executeTime)){
-            throw new NoSuchElementException("No value present");
+            throw new ApplicationException(ExceptionMessages.INIT_REPLACEMENT_TIME_ERROR);
         }
         ReplaceInformations replaceInformations = ReplaceInformations.builder()
                 .refereeFunctionOnMatch(refereeFunction)
@@ -377,6 +378,11 @@ public class MatchServiceImpl implements MatchService {
     }
 
     @Override
+    public List<ReplaceInformations> getAllReplaceInformationsForScheduler() {
+        return replaceInformationsRepository.findAll();
+    }
+
+    @Override
     public List<ReplaceInformations> getMatchReplaceInformations(Long matchId) {
         List<ReplaceInformations> replaceInformations = replaceInformationsRepository.findAllByRefereeFunctionOnMatch_Match_Id(matchId);
         if(replaceInformations.isEmpty()){
@@ -424,12 +430,19 @@ public class MatchServiceImpl implements MatchService {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.SERIALIZABLE)
     public void confirmReplacement(ReplaceInformations replaceInformations) {
-        ReplaceInformations replaceInformationsEntity = replaceInformationsRepository.findById(replaceInformations.getId()).orElseThrow();
-        replaceInformationsEntity.getRefereeFunctionOnMatch().getReferee().getMatches()
-                .remove(replaceInformationsEntity.getRefereeFunctionOnMatch().getMatch());
-        replaceInformationsEntity.getRefereeFunctionOnMatch().setReferee(refereeRepository.
-                findById(replaceInformations.getCandidates().get(0).getId()).orElseThrow());
-        refereeFunctionOnMatchRepository.save(replaceInformationsEntity.getRefereeFunctionOnMatch());
-        replaceInformationsRepository.delete(replaceInformationsEntity);
+        try {
+            ReplaceInformations replaceInformationsEntity = replaceInformationsRepository.findById(replaceInformations.getId()).orElseThrow();
+            replaceInformationsEntity.getRefereeFunctionOnMatch().getReferee().getMatches()
+                    .remove(replaceInformationsEntity.getRefereeFunctionOnMatch().getMatch());
+            replaceInformationsEntity.getRefereeFunctionOnMatch().setReferee(refereeRepository.
+                    findById(replaceInformations.getCandidates().get(0).getId()).orElseThrow());
+            replaceInformationsEntity.setVersion(replaceInformations.getVersion());
+            entityManager.detach(replaceInformationsEntity);
+            refereeFunctionOnMatchRepository.save(replaceInformationsEntity.getRefereeFunctionOnMatch());
+            replaceInformationsRepository.delete(replaceInformationsEntity);
+        }
+           catch(OptimisticLockingFailureException e) {
+            throw new ApplicationException(ExceptionMessages.OPTIMISTIC_LOCK_PROBLEM, e);
+        }
     }
 }

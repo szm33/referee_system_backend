@@ -48,6 +48,8 @@ public interface MatchService {
     @PreAuthorize("isAuthenticated()")
     List<ReplaceInformations> getAllReplaceInformations();
 
+    List<ReplaceInformations> getAllReplaceInformationsForScheduler();
+
     @PreAuthorize("isAuthenticated()")
     void replacementResign(Long replaceId);
 

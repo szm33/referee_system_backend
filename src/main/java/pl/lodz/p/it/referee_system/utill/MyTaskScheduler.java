@@ -22,10 +22,9 @@ public class MyTaskScheduler {
     @Autowired
     private MatchService matchService;
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
-//    @Scheduled(fixedRate = 10000)
+    @Scheduled(fixedRate = 10000)
     public void print() {
-        for(ReplaceInformations replaceInformation: matchService.getAllReplaceInformations()
+        for(ReplaceInformations replaceInformation: matchService.getAllReplaceInformationsForScheduler()
             ){
             LocalDateTime now = LocalDateTime.now();
             if (replaceInformation.getExecuteTime().isBefore(now)) {
@@ -33,10 +32,6 @@ public class MyTaskScheduler {
                 matchService.replaceReferee(replaceInformation);
                 Logger.getGlobal().log(Level.SEVERE, replaceInformation.getExecuteTime().toString());
             }
-            else {
-
-            }
-
         }
     }
 }
