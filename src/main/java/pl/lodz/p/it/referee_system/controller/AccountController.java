@@ -48,10 +48,14 @@ public class AccountController {
 
     @PostMapping("/login")
     @PreAuthorize("isAnonymous()")
-    public ResponseEntity<TokenDTO> createAuthenticationToken(@Valid @RequestBody AccountAuthenticationDTO authenticateAccount) {
+    public ResponseEntity<TokenDTO> createAuthenticationToken(
+            @Valid @RequestBody AccountAuthenticationDTO authenticateAccount, BindingResult result) {
+        if (result.hasErrors()) {
+            throw new ApplicationException(ExceptionMessages.VALIDATION_ERROR);
+        }
         TokenDTO tokenDTO = new TokenDTO();
         Token token = accountService.login(AccountMapper.map(authenticateAccount));
-        tokenDTO.setJwt(tokenUtills.generateToken(token.getAccount()));
+        tokenDTO.setJwt(tokenUtills.generateToken(token.getAccount(), token.getAccount().getReferee().getId()));
         tokenDTO.setRefreshToken(token.getRefreshToken());
         return ResponseEntity.ok(tokenDTO);
     }
@@ -62,7 +66,7 @@ public class AccountController {
         Token token = accountService.refresh(Token.builder()
                 .refreshToken(tokenDTO.getRefreshToken())
                 .build());
-        tokenDTO.setJwt(tokenUtills.generateToken(token.getAccount()));
+        tokenDTO.setJwt(tokenUtills.generateToken(token.getAccount(), token.getAccount().getReferee().getId()));
         return ResponseEntity.ok(tokenDTO);
     }
 

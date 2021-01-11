@@ -23,7 +23,7 @@ public interface MatchService {
     Match getMatch(Long id);
 
     @Secured("ROLE_ADMIN")
-    Match createMatch(Match match);
+    Long createMatch(Match match);
 
     @Secured("ROLE_ADMIN")
     void editMatch(Match match);
@@ -35,7 +35,7 @@ public interface MatchService {
     List<MatchFunction> getAllMatchFunctions();
 
     @PreAuthorize("isAuthenticated()")
-    void initReplacement(Long matchId);
+    Long initReplacement(Long matchId);
 
     @PreAuthorize("isAuthenticated()")
     void registerArrivalTime(ReplacementCandidate replacementCandidate);

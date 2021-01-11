@@ -1,21 +1,14 @@
 package pl.lodz.p.it.referee_system.utill;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.core.env.Environment;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.lodz.p.it.referee_system.entity.Account;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
-import javax.servlet.http.HttpServletRequest;
-import java.io.UnsupportedEncodingException;
-import java.security.Key;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -43,6 +36,11 @@ public class ContextUtills {
     public void setFrontendReplaceInformationsAddress(String address){
         ContextUtills.replaceInformationsLinkAddress = address;
     }
+    private static String matchLinkAddress;
+    @Value("${frontend.address.match.link}")
+    public void setFrontendMatchAddress(String address){
+        ContextUtills.matchLinkAddress = address;
+    }
 
 
 
@@ -63,6 +61,7 @@ public class ContextUtills {
 
     public static String getMessage(String key) {
         return ResourceBundle.getBundle(resourceBundleName, getLocale()).getString(key);
+//        return messageSource.getMessage(key, null, getLocale());
     }
 
     public static void setKey(String encryptionKey)
@@ -117,6 +116,10 @@ public class ContextUtills {
 
     public static String createReplaceInformationsLink(Long id) {
         return replaceInformationsLinkAddress + id;
+    }
+
+    public static String createMatchLink(Long id) {
+        return matchLinkAddress + id;
     }
 
 }

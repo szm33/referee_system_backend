@@ -23,4 +23,14 @@ public class JsonConfiguration extends WebMvcConfigurationSupport {
                     .serializationInclusion(JsonInclude.Include.NON_NULL)
                     .build()));
     }
+//
+//    @Bean
+//    public ResourceBundleMessageSource messageSource() {
+//
+//        var source = new ResourceBundleMessageSource();
+//        source.setBasenames("message");
+//        source.setDefaultEncoding("UTF-8");
+//
+//        return source;
+//    }
 }

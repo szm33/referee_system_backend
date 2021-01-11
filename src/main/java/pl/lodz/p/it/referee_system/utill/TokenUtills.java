@@ -39,9 +39,10 @@ public class TokenUtills {
         return extractExpiration(token).before(new Date());
     }
 
-    public String generateToken(UserDetails user) {
+    public String generateToken(UserDetails user, Long id) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("roles", user.getAuthorities());
+        claims.put("id", id);
         return createToken(claims, user.getUsername(), 1000 * 60 * 15);
     }
 

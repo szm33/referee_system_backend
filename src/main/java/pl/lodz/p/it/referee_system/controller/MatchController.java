@@ -66,11 +66,11 @@ public class MatchController {
 
     @PostMapping
     @Secured("ROLE_ADMIN")
-    public ResponseEntity<MatchDTO> createMatch(@Valid @RequestBody MatchDTO match, BindingResult result) {
+    public ResponseEntity<Long> createMatch(@Valid @RequestBody MatchDTO match, BindingResult result) {
         if (result.hasErrors()) {
             throw new ApplicationException(ExceptionMessages.VALIDATION_ERROR);
         }
-        return ResponseEntity.ok(new MatchDTO(matchService.createMatch(MatchMapper.map(match))));
+        return ResponseEntity.ok(matchService.createMatch(MatchMapper.map(match)));
     }
 
     @GetMapping("functions")
@@ -91,9 +91,8 @@ public class MatchController {
 
     @PostMapping("replace/{matchId}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity initReplacement(@PathVariable Long matchId) {
-        matchService.initReplacement(matchId);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Long> initReplacement(@PathVariable Long matchId) {
+        return ResponseEntity.ok(matchService.initReplacement(matchId));
     }
 
     @PostMapping("arrivalTime")

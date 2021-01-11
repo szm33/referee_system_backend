@@ -12,6 +12,7 @@ import javax.validation.constraints.Pattern;
 @Data
 public class RefereeDTO {
 
+    @NotNull
     private Long id;
     @NotEmpty
     @Pattern(regexp = "^[a-zA-Z]+$")

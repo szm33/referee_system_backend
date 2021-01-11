@@ -4,6 +4,7 @@ import lombok.Data;
 import org.hibernate.validator.constraints.NotEmpty;
 import pl.lodz.p.it.referee_system.entity.Match;
 
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -15,9 +16,13 @@ import java.util.stream.Collectors;
 public class MatchDTO {
 
     private Long id;
+    @NotNull
     private List<RefereeOnMatchDTO> referees = new ArrayList<>();
+    @NotNull
     private TeamOnMatchDTO homeTeam;
+    @NotNull
     private TeamOnMatchDTO awayTeam;
+    @NotNull
     private LocalDate dateOfMatch;
     @Pattern(regexp = "^[a-zA-Z_0-9:,?/@() ]+$")
     private String description;
