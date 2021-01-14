@@ -142,7 +142,10 @@ public class AccountController {
 
     @PostMapping("account/reset")
     @PreAuthorize("permitAll()")
-    public ResponseEntity resetPassword(@Valid @RequestBody ResetPasswordDTO resetPassword) {
+    public ResponseEntity resetPassword(@Valid @RequestBody ResetPasswordDTO resetPassword, BindingResult result) {
+        if (result.hasErrors()) {
+            throw new ApplicationException(ExceptionMessages.VALIDATION_ERROR);
+        }
         if(!resetPassword.getPassword().equals(resetPassword.getConfirmedPassword())){
             throw new ApplicationException(ExceptionMessages.PASSWORDS_NOT_THE_SAME);
         }

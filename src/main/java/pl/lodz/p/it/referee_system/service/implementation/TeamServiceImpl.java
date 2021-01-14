@@ -2,6 +2,7 @@ package pl.lodz.p.it.referee_system.service.implementation;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
@@ -72,6 +73,9 @@ public class TeamServiceImpl implements TeamService {
         }
           catch (DataIntegrityViolationException e) {
             throw new ApplicationException(ExceptionMessages.TEAM_NAME_NOT_UNIQUE);
+        }
+        catch (OptimisticLockingFailureException e) {
+            throw new ApplicationException(ExceptionMessages.OPTIMISTIC_LOCK_PROBLEM, e);
         }
     }
 

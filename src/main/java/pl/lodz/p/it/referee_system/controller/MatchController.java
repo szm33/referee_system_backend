@@ -22,6 +22,7 @@ import pl.lodz.p.it.referee_system.utill.ContextUtills;
 import javax.validation.Valid;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,7 +37,10 @@ public class MatchController {
     @GetMapping
     @PreAuthorize("permitAll()")
     public ResponseEntity<List<MatchDTO>> getAllMatches() {
-        return ResponseEntity.ok(matchService.getAllMatches().stream().map(MatchDTO::new).collect(Collectors.toList()));
+        return ResponseEntity.ok( matchService.getAllMatches().stream()
+                .map(MatchDTO::new)
+                .sorted(Comparator.comparing(MatchDTO::getDateOfMatch))
+                .collect(Collectors.toList()));
     }
 
     @GetMapping("{id}")
@@ -49,13 +53,19 @@ public class MatchController {
     @GetMapping("referee/{id}")
     @PreAuthorize("permitAll()")
     public ResponseEntity<List<MatchDTO>> getRefereeMatches(@PathVariable Long id) {
-        return ResponseEntity.ok(matchService.getRefereeMatches(id).stream().map(MatchDTO::new).collect(Collectors.toList()));
+        return ResponseEntity.ok(matchService.getRefereeMatches(id).stream()
+                .map(MatchDTO::new)
+                .sorted(Comparator.comparing(MatchDTO::getDateOfMatch))
+                .collect(Collectors.toList()));
     }
 
     @GetMapping("my")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<List<MatchDTO>> getMyMatches() {
-        return ResponseEntity.ok(matchService.getMyMatches().stream().map(MatchDTO::new).collect(Collectors.toList()));
+        return ResponseEntity.ok(matchService.getMyMatches().stream()
+                .map(MatchDTO::new)
+                .sorted(Comparator.comparing(MatchDTO::getDateOfMatch))
+                .collect(Collectors.toList()));
     }
 
     @PostMapping("free/referees-teams")

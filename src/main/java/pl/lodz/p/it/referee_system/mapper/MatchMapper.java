@@ -18,6 +18,7 @@ public class MatchMapper {
         match.setId(matchDTO.getId());
         match.setDescription(matchDTO.getDescription());
         match.setDateOfMatch(matchDTO.getDateOfMatch());
+        match.setVersion(ContextUtills.decrypt(matchDTO.getVersion()));
         String[] time = matchDTO.getTimeOfMatch().split(":");
         match.setMatchTime(LocalTime.of(Integer.valueOf(time[0]),Integer.valueOf(time[1])));
         Team homeTeam = new Team();

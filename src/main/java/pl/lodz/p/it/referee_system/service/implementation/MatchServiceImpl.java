@@ -2,6 +2,7 @@ package pl.lodz.p.it.referee_system.service.implementation;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.util.Pair;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
@@ -20,6 +21,7 @@ import pl.lodz.p.it.referee_system.utill.ReplaceInformationsSender;
 import pl.lodz.p.it.referee_system.utill.ResetLinkSender;
 
 import javax.persistence.EntityManager;
+import javax.persistence.LockModeType;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -28,7 +30,7 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
-@Retryable( value = Exception.class,
+@Retryable(value = Exception.class,
         maxAttemptsExpression = "${retry.maxAttempts}",
         backoff = @Backoff(delayExpression = "${retry.maxDelay}"))
 public class MatchServiceImpl implements MatchService {
@@ -75,7 +77,7 @@ public class MatchServiceImpl implements MatchService {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.SERIALIZABLE)
     public Long createMatch(Match match) {
-        if (LocalDate.now().isAfter(match.getDateOfMatch())) {
+        if(LocalDate.now().isAfter(match.getDateOfMatch())){
             throw new ApplicationException(ExceptionMessages.DATE_OF_MATCH_ERROR);
         }
         Match matchEntity = new Match();
@@ -169,24 +171,25 @@ public class MatchServiceImpl implements MatchService {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.SERIALIZABLE)
     public void editMatch(Match match) {
-        Match matchEntity = matchRepository.findById(match.getId()).orElseThrow();
-        List<String> emails = matchEntity.getReferees().stream()
-                .map(referee -> referee.getReferee().getAccount().getEmail())
-                .collect(Collectors.toList());
-        if (!match.getDateOfMatch().isEqual(matchEntity.getDateOfMatch()) && LocalDate.now().isAfter(match.getDateOfMatch())) {
-            throw new ApplicationException(ExceptionMessages.DATE_OF_MATCH_ERROR);
-        }
-        if(match.getDateOfMatch() == null){
-            throw new NoSuchElementException("No value present");
-        }
-        //jesli data zmieniona sprawdzenie czy druzyny sa wolne
-        if(!match.getDateOfMatch().isEqual(matchEntity.getDateOfMatch()) && matchEntity.getTeams().stream()
-                .filter(team -> team.getTeam().getMatches().stream()
-                        .noneMatch(teamOnMatch -> teamOnMatch.getMatch()
-                                .getDateOfMatch().isEqual(match.getDateOfMatch())))
-                .count() != 2){
-            throw new ApplicationException(ExceptionMessages.MATCH_TEAMS_ERROR);
-        }
+        try {
+            Match matchEntity = matchRepository.findById(match.getId()).orElseThrow();
+            List<String> emails = matchEntity.getReferees().stream()
+                    .map(referee -> referee.getReferee().getAccount().getEmail())
+                    .collect(Collectors.toList());
+            if(!match.getDateOfMatch().isEqual(matchEntity.getDateOfMatch()) && LocalDate.now().isAfter(match.getDateOfMatch())){
+                throw new ApplicationException(ExceptionMessages.DATE_OF_MATCH_ERROR);
+            }
+            if(match.getDateOfMatch() == null){
+                throw new NoSuchElementException("No value present");
+            }
+            //jesli data zmieniona sprawdzenie czy druzyny sa wolne
+            if(!match.getDateOfMatch().isEqual(matchEntity.getDateOfMatch()) && matchEntity.getTeams().stream()
+                    .filter(team -> team.getTeam().getMatches().stream()
+                            .noneMatch(teamOnMatch -> teamOnMatch.getMatch()
+                                    .getDateOfMatch().isEqual(match.getDateOfMatch())))
+                    .count() != 2){
+                throw new ApplicationException(ExceptionMessages.MATCH_TEAMS_ERROR);
+            }
 //        List<Long> newRefereesIds = match.getReferees().stream()
 //                .map(refereeFunctionOnMatch -> refereeFunctionOnMatch.getReferee().getId()).collect(Collectors.toList());
 //        List<Referee> referees = new ArrayList<>();
@@ -208,39 +211,38 @@ public class MatchServiceImpl implements MatchService {
 //         referees.addAll(checkIfRefereesAreFree(newRefereesIds, match.getDateOfMatch()));
 
 
+            //sprawdzenie czy wybrani sedziowie sa wolni
+            List<Referee> referees = refereeRepository.findRefereesByIds(match.getReferees().stream()
+                    .map(refereeFunctionOnMatch -> refereeFunctionOnMatch.getReferee().getId()).collect(Collectors.toList()));
+            referees = referees.stream()
+                    .filter(referee -> referee.getMatches().stream()
+                            .noneMatch(refereeOnMatch -> refereeOnMatch.getMatch()
+                                    .getDateOfMatch().isEqual(match.getDateOfMatch())))
+                    .collect(Collectors.toList());
+            //dodanie sedziow bedacych na edytowanym meczu jesli data jest ta sama
+            if(match.getDateOfMatch().isEqual(matchEntity.getDateOfMatch())){
+                List<Long> matchRefereesId = new ArrayList<>();
+                matchRefereesId.addAll(matchEntity.getReferees().stream()
+                        .map(RefereeFunctionOnMatch::getReferee)
+                        .filter(referee -> match.getReferees().stream()
+                                .map(refereeFunctionOnMatch -> refereeFunctionOnMatch.getReferee().getId())
+                                .collect(Collectors.toList())
+                                .contains(referee.getId()))
+                        .map(Referee::getId)
+                        .collect(Collectors.toList()));
+                referees.addAll(refereeRepository.findRefereesByIds(matchRefereesId));
+            }
+            if(referees.size() != match.getReferees().size()){
+                throw new ApplicationException(ExceptionMessages.MATCH_REFEREES_ERROR);
+            }
+            //usuniecie startych sedziow i dodanie nowych
+            matchEntity.getReferees().forEach(r -> r.getReferee().getMatches().remove(r));
+            List<RefereeFunctionOnMatch> refereeFunctionOnMatchesToRemove = matchEntity.getReferees();
+            matchEntity.setReferees(new ArrayList<>());
+            //usuniecie automatycznych zastepstw w tym meczu
+            refereeFunctionOnMatchRepository.deleteAll(refereeFunctionOnMatchesToRemove);
 
-        //sprawdzenie czy wybrani sedziowie sa wolni
-        List<Referee> referees = refereeRepository.findRefereesByIds(match.getReferees().stream()
-                .map(refereeFunctionOnMatch -> refereeFunctionOnMatch.getReferee().getId()).collect(Collectors.toList()));
-        referees = referees.stream()
-                .filter(referee -> referee.getMatches().stream()
-                        .noneMatch(refereeOnMatch -> refereeOnMatch.getMatch()
-                                .getDateOfMatch().isEqual(match.getDateOfMatch())))
-                .collect(Collectors.toList());
-        //dodanie sedziow bedacych na edytowanym meczu jesli data jest ta sama
-        if(match.getDateOfMatch().isEqual(matchEntity.getDateOfMatch())){
-            List<Long> matchRefereesId = new ArrayList<>();
-            matchRefereesId.addAll(matchEntity.getReferees().stream()
-                    .map(RefereeFunctionOnMatch::getReferee)
-                    .filter(referee -> match.getReferees().stream()
-                            .map(refereeFunctionOnMatch -> refereeFunctionOnMatch.getReferee().getId())
-                            .collect(Collectors.toList())
-                            .contains(referee.getId()))
-                    .map(Referee::getId)
-                    .collect(Collectors.toList()));
-            referees.addAll(refereeRepository.findRefereesByIds(matchRefereesId));
-        }
-        if(referees.size() != match.getReferees().size()){
-            throw new ApplicationException(ExceptionMessages.MATCH_REFEREES_ERROR);
-        }
-        //usuniecie startych sedziow i dodanie nowych
-        matchEntity.getReferees().forEach(r -> r.getReferee().getMatches().remove(r));
-        List<RefereeFunctionOnMatch> refereeFunctionOnMatchesToRemove = matchEntity.getReferees();
-        matchEntity.setReferees(new ArrayList<>());
-        //usuniecie automatycznych zastepstw w tym meczu
-        refereeFunctionOnMatchRepository.deleteAll(refereeFunctionOnMatchesToRemove);
-
-        List<MatchFunction> matchFunctionList = matchFunctionRepository.findAll();
+            List<MatchFunction> matchFunctionList = matchFunctionRepository.findAll();
 //        for(int i = 0; i < referees.size(); i++){
 //            final int it = i;
 //            RefereeFunctionOnMatch rfm = new RefereeFunctionOnMatch();
@@ -252,32 +254,43 @@ public class MatchServiceImpl implements MatchService {
 //            matchEntity.getReferees().add(rfm);
 //        }
 
-        referees.forEach(referee -> {
-            String functionName = getRefereeFunction(referee.getId(), match.getReferees());
-            MatchFunction matchFunction = matchFunctionList.stream().
-                    filter(matchFun -> matchFun.getFunctionName().equals(functionName))
-                    .findFirst().orElseThrow(() -> new ApplicationException(ExceptionMessages.MATCH_FUNCTIONS_ERROR));
-            matchFunctionList.remove(matchFunction);
-            RefereeFunctionOnMatch rfm = new RefereeFunctionOnMatch();
-            rfm.setReferee(referee);
-            rfm.setMatch(matchEntity);
-            rfm.setMatchFunction(matchFunction);
-            matchEntity.getReferees().add(rfm);
-        });
+            referees.forEach(referee -> {
+                String functionName = getRefereeFunction(referee.getId(), match.getReferees());
+                MatchFunction matchFunction = matchFunctionList.stream().
+                        filter(matchFun -> matchFun.getFunctionName().equals(functionName))
+                        .findFirst().orElseThrow(() -> new ApplicationException(ExceptionMessages.MATCH_FUNCTIONS_ERROR));
+                matchFunctionList.remove(matchFunction);
+                RefereeFunctionOnMatch rfm = new RefereeFunctionOnMatch();
+                rfm.setReferee(referee);
+                rfm.setMatch(matchEntity);
+                rfm.setMatchFunction(matchFunction);
+                matchEntity.getReferees().add(rfm);
+            });
 
 
-        matchEntity.setDateOfMatch(match.getDateOfMatch());
-        matchEntity.setDescription(match.getDescription());
-        matchEntity.setMatchTime(match.getMatchTime());
-        entityManager.detach(matchEntity);
-        matchRepository.save(matchEntity);
+            matchEntity.setDateOfMatch(match.getDateOfMatch());
+            matchEntity.setDescription(match.getDescription());
+            matchEntity.setMatchTime(match.getMatchTime());
+            matchEntity.setVersion(match.getVersion());
+//            matchEntity.setVersion(matchEntity.getVersion() + 1);
+            entityManager.detach(matchEntity);
+//            entityManager.merge(matchEntity);
+            Match savedMatch = matchRepository.save(matchEntity);
+            if (savedMatch.getVersion() == matchEntity.getVersion()) {
+                savedMatch.setVersion(savedMatch.getVersion() + 1);
+                matchRepository.save(savedMatch);
+            }
+//            entityManager.lock(matchEntity, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
 
-        emails.addAll(matchEntity.getReferees().stream()
-                .map(refereeEntity -> refereeEntity.getReferee().getAccount().getEmail())
-                .collect(Collectors.toList()));
-        String link = ContextUtills.createMatchLink(matchEntity.getId());
-        MatchSender matchSender = new MatchSender(link, emails);
-        matchSender.start();
+            emails.addAll(matchEntity.getReferees().stream()
+                    .map(refereeEntity -> refereeEntity.getReferee().getAccount().getEmail())
+                    .collect(Collectors.toList()));
+            String link = ContextUtills.createMatchLink(matchEntity.getId());
+            MatchSender matchSender = new MatchSender(link, emails);
+            matchSender.start();
+        } catch (OptimisticLockingFailureException e) {
+            throw new ApplicationException(ExceptionMessages.OPTIMISTIC_LOCK_PROBLEM, e);
+        }
     }
 
     private String getRefereeFunction(Long id, List<RefereeFunctionOnMatch> referees) {
@@ -287,8 +300,6 @@ public class MatchServiceImpl implements MatchService {
 
     @Override
     public Pair<List<Team>, List<Referee>> getFreeTeamsAndReferees(LocalDate date) {
-        List<Referee> freeReferees = refereeRepository.findAllFreeReferees(date);
-        List<ReplaceInformations> replaceInformations = replaceInformationsRepository.findAll();
         return Pair.of(teamRepository.findAllFreeTeams(date), refereeRepository.findAllFreeReferees(date));
     }
 
@@ -329,11 +340,12 @@ public class MatchServiceImpl implements MatchService {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.SERIALIZABLE)
     public void registerArrivalTime(ReplacementCandidate replacementCandidate) {
-        ReplaceInformations replaceInformationsEntity = replaceInformationsRepository.findById(replacementCandidate.getReplaceInformations().getId()).orElseThrow();
+        ReplaceInformations replaceInformationsEntity = replaceInformationsRepository.findById(replacementCandidate.getReplaceInformations().getId())
+                .orElseThrow(() -> new ApplicationException(ExceptionMessages.REPLACEMENT_NOT_EXIST_ERROR));
         long arrivalTimeInMinutes = replacementCandidate.getArrivalTime();
         Referee candidateReferee = refereeRepository.findByAccount_Username(ContextUtills.getUsername()).orElseThrow();
         //Sprawdzanie cyz nie zastepujesz samego siebie
-        if (candidateReferee.equals(replaceInformationsEntity.getRefereeFunctionOnMatch().getReferee())) {
+        if(candidateReferee.equals(replaceInformationsEntity.getRefereeFunctionOnMatch().getReferee())){
             throw new ApplicationException(ExceptionMessages.OWN_REPLACE_ERROR);
         }
         //sprawdzenie czy jest nie ma zandego meczu/zastapienia
@@ -370,7 +382,8 @@ public class MatchServiceImpl implements MatchService {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.SERIALIZABLE)
     public void replaceReferee(ReplaceInformations replaceInformation) {
-        ReplaceInformations replaceInformationsEntity = replaceInformationsRepository.findById(replaceInformation.getId()).orElseThrow();
+        ReplaceInformations replaceInformationsEntity = replaceInformationsRepository.findById(replaceInformation.getId())
+                .orElseThrow(() -> new ApplicationException(ExceptionMessages.REPLACEMENT_NOT_EXIST_ERROR));
         String emailReplacingReferee = replaceInformationsEntity.getRefereeFunctionOnMatch().getReferee().getAccount().getEmail();
         List<ReplacementCandidate> candidates = replaceInformationsEntity.getCandidates().stream().
                 sorted((Comparator.comparing(ReplacementCandidate::getArrivalTime))).collect(Collectors.toList());
@@ -385,7 +398,10 @@ public class MatchServiceImpl implements MatchService {
                         .findById(replaceInformationsEntity.getRefereeFunctionOnMatch().getId()).orElseThrow();
                 refereeFunctionOnMatch.getReferee().getMatches().remove(refereeFunctionOnMatch);
                 refereeFunctionOnMatch.setReferee(refereeRepository.findById(candidates.get(0).getRefereeForReplacement().getId()).orElseThrow());
-                refereeFunctionOnMatchRepository.save(refereeFunctionOnMatch);
+//                refereeFunctionOnMatchRepository.save(refereeFunctionOnMatch);
+                Match matchEntity = refereeFunctionOnMatch.getMatch();
+                matchEntity.setVersion(matchEntity.getVersion() + 1);
+                matchRepository.save(matchEntity);
             }
         }
         Match matchEntity = replaceInformationsEntity.getRefereeFunctionOnMatch().getMatch();
@@ -423,7 +439,8 @@ public class MatchServiceImpl implements MatchService {
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.SERIALIZABLE)
     public void replacementResign(Long replaceId) {
-        ReplaceInformations replaceInformations = replaceInformationsRepository.findById(replaceId).orElseThrow();
+        ReplaceInformations replaceInformations = replaceInformationsRepository.findById(replaceId)
+                .orElseThrow(() -> new ApplicationException(ExceptionMessages.REPLACEMENT_NOT_EXIST_ERROR));
         List<ReplacementCandidate> candidates = replaceInformations.getCandidates().stream().
                 sorted((Comparator.comparing(ReplacementCandidate::getArrivalTime))).collect(Collectors.toList());
         ReplacementCandidate resignCandidate = candidates.stream()
@@ -460,7 +477,8 @@ public class MatchServiceImpl implements MatchService {
     @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.SERIALIZABLE)
     public void confirmReplacement(ReplaceInformations replaceInformations) {
         try {
-            ReplaceInformations replaceInformationsEntity = replaceInformationsRepository.findById(replaceInformations.getId()).orElseThrow();
+            ReplaceInformations replaceInformationsEntity = replaceInformationsRepository.findById(replaceInformations.getId())
+                    .orElseThrow(() -> new ApplicationException(ExceptionMessages.REPLACEMENT_NOT_EXIST_ERROR));
             String emailReplacingReferee = replaceInformationsEntity.getRefereeFunctionOnMatch().getReferee().getAccount().getEmail();
             replaceInformationsEntity.getRefereeFunctionOnMatch().getReferee().getMatches()
                     .remove(replaceInformationsEntity.getRefereeFunctionOnMatch().getMatch());
@@ -468,8 +486,10 @@ public class MatchServiceImpl implements MatchService {
                     findById(replaceInformations.getCandidates().get(0).getId()).orElseThrow());
             replaceInformationsEntity.setVersion(replaceInformations.getVersion());
             entityManager.detach(replaceInformationsEntity);
-            refereeFunctionOnMatchRepository.save(replaceInformationsEntity.getRefereeFunctionOnMatch());
+//            refereeFunctionOnMatchRepository.save(replaceInformationsEntity.getRefereeFunctionOnMatch());
             Match matchEntity = replaceInformationsEntity.getRefereeFunctionOnMatch().getMatch();
+            matchEntity.setVersion(matchEntity.getVersion() + 1);
+            matchRepository.save(matchEntity);
             replaceInformationsRepository.delete(replaceInformationsEntity);
 
             List<String> emails = matchEntity.getReferees().stream()
@@ -480,8 +500,7 @@ public class MatchServiceImpl implements MatchService {
             String link = ContextUtills.createMatchLink(matchEntity.getId());
             MatchSender matchSender = new MatchSender(link, emails);
             matchSender.start();
-        }
-           catch(OptimisticLockingFailureException e) {
+        } catch (OptimisticLockingFailureException e) {
             throw new ApplicationException(ExceptionMessages.OPTIMISTIC_LOCK_PROBLEM, e);
         }
     }

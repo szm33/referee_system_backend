@@ -3,6 +3,7 @@ package pl.lodz.p.it.referee_system.dto;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotEmpty;
 import pl.lodz.p.it.referee_system.entity.Match;
+import pl.lodz.p.it.referee_system.utill.ContextUtills;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -29,6 +30,7 @@ public class MatchDTO {
     @NotEmpty
     @Pattern(regexp = "^[0-9]{2}:[0-9]{2}+$")
     private String timeOfMatch;
+    private String version;
 
     public MatchDTO() {
     }
@@ -42,5 +44,6 @@ public class MatchDTO {
         this.homeTeam = new TeamOnMatchDTO(match.getTeams().get(i));
         this.awayTeam = new TeamOnMatchDTO(match.getTeams().get((i + 1) % 2));
         this.timeOfMatch = match.getMatchTime().toString();
+        this.version = ContextUtills.encrypt(match.getVersion());
     }
 }
