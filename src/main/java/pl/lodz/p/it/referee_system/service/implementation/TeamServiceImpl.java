@@ -41,7 +41,6 @@ public class TeamServiceImpl implements TeamService {
             teamRepository.save(team);
             teamRepository.flush();
         }
-        //dodac unique na parrze liga nazwa
         catch (DataIntegrityViolationException e) {
             throw new ApplicationException(ExceptionMessages.TEAM_NAME_NOT_UNIQUE);
         }

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import pl.lodz.p.it.referee_system.dto.*;
 import pl.lodz.p.it.referee_system.entity.Match;
 import pl.lodz.p.it.referee_system.entity.MatchFunction;
-import pl.lodz.p.it.referee_system.entity.ReplaceInformations;
+import pl.lodz.p.it.referee_system.entity.ReplacementInformation;
 import pl.lodz.p.it.referee_system.entity.ReplacementCandidate;
 import pl.lodz.p.it.referee_system.exception.ApplicationException;
 import pl.lodz.p.it.referee_system.exception.ExceptionMessages;
@@ -21,7 +21,6 @@ import pl.lodz.p.it.referee_system.utill.ContextUtills;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -107,27 +106,27 @@ public class MatchController {
 
     @PostMapping("arrivalTime")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity registerArrivalTime(@RequestBody MatchArrivalTimeDTO replaceInformations) {
+    public ResponseEntity registerArrivalTime(@RequestBody MatchArrivalTimeDTO replacementArrivalTime) {
         matchService.registerArrivalTime(ReplacementCandidate.builder()
-                .replaceInformations(ReplaceInformations.builder().id(replaceInformations.getId()).build())
-                .arrivalTime(replaceInformations.getArrivalTime())
+                .replacementInformation(ReplacementInformation.builder().id(replacementArrivalTime.getId()).build())
+                .arrivalTime(replacementArrivalTime.getArrivalTime())
                 .build());
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("matchReplaceInformations/{matchId}")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<ReplaceInformationsDetailsDTO>> getMatchReplaceInformations(@PathVariable Long matchId) {
+    public ResponseEntity<List<ReplacementInformationDetailsDTO>> getMatchReplacementInformation(@PathVariable Long matchId) {
         return ResponseEntity.ok(matchService.getMatchReplaceInformations(matchId).stream()
-                .map(ReplaceInformationsDetailsDTO::new)
+                .map(ReplacementInformationDetailsDTO::new)
                 .collect(Collectors.toList()));
     }
 
     @GetMapping("replacesInformations")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<List<ReplaceInformationsDTO>> getAllReplaceInformations() {
+    public ResponseEntity<List<ReplacementInformationDTO>> getAllReplacementInformation() {
         return ResponseEntity.ok(matchService.getAllReplaceInformations().stream()
-                .map(ReplaceInformationsDTO::new)
+                .map(ReplacementInformationDTO::new)
                 .collect(Collectors.toList()));
     }
 
@@ -141,7 +140,7 @@ public class MatchController {
     @PostMapping("confirmReplacement")
     @Secured("ROLE_ADMIN")
     public ResponseEntity confirmReplacement(@RequestBody ConfirmReplacemnetDTO confirmReplacemnetDTO) {
-        this.matchService.confirmReplacement(ReplaceInformations.builder()
+        this.matchService.confirmReplacement(ReplacementInformation.builder()
                 .id(confirmReplacemnetDTO.getReplaceInformationsId())
                 .candidates(List.of(ReplacementCandidate.builder().
                         id(confirmReplacemnetDTO.getConfirmedCandidateId())

@@ -23,16 +23,13 @@ import pl.lodz.p.it.referee_system.mapper.AccountMapper;
 import pl.lodz.p.it.referee_system.service.AccountService;
 import pl.lodz.p.it.referee_system.service.DictionariesService;
 import pl.lodz.p.it.referee_system.utill.ContextUtills;
-//import pl.lodz.p.it.referee_system.utill.EmailUtills;
 import pl.lodz.p.it.referee_system.utill.TokenUtills;
 
 
 import javax.mail.MessagingException;
 import javax.validation.*;
-import javax.validation.constraints.Pattern;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 @RestController

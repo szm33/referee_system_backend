@@ -40,20 +40,20 @@ public interface MatchService {
     @PreAuthorize("isAuthenticated()")
     void registerArrivalTime(ReplacementCandidate replacementCandidate);
 
-    void replaceReferee(ReplaceInformations replaceInformations);
+    void replaceReferee(ReplacementInformation replacementInformation);
 
     @PreAuthorize("isAuthenticated()")
-    List<ReplaceInformations> getMatchReplaceInformations(Long matchId);
+    List<ReplacementInformation> getMatchReplaceInformations(Long matchId);
 
     @PreAuthorize("isAuthenticated()")
-    List<ReplaceInformations> getAllReplaceInformations();
+    List<ReplacementInformation> getAllReplaceInformations();
 
-    List<ReplaceInformations> getAllReplaceInformationsForScheduler();
+    List<ReplacementInformation> getAllReplaceInformationsForScheduler();
 
     @PreAuthorize("isAuthenticated()")
     void replacementResign(Long replaceId);
 
     @Secured("ROLE_ADMIN")
-    void confirmReplacement(ReplaceInformations replaceInformations);
+    void confirmReplacement(ReplacementInformation replacementInformation);
 
 }

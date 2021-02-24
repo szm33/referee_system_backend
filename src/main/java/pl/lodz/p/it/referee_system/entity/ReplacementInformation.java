@@ -11,24 +11,20 @@ import java.util.List;
 @Setter
 @Builder
 @AllArgsConstructor
-public class ReplaceInformations {
+public class ReplacementInformation {
 
-    public ReplaceInformations(){}
+    public ReplacementInformation(){}
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @OneToOne
-    @JoinColumn(name = "referee_function_id", referencedColumnName = "id")
+    @JoinColumn(name = "referee_function_id", referencedColumnName = "id", unique = true)
     private RefereeFunctionOnMatch refereeFunctionOnMatch;
     @Column(nullable = false)
     private LocalDateTime executeTime;
-    @OneToMany(mappedBy = "replaceInformations", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "replacementInformation", cascade = CascadeType.ALL)
     private List<ReplacementCandidate> candidates;
-//    @OneToOne
-//    @JoinColumn(name = "referee_for_replacement_id", referencedColumnName = "id")
-//    private Referee refereeForReplacement;
-//    private Long arrivalTime;
     @Version
     @Column(nullable = false)
     private Long version;

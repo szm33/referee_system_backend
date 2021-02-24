@@ -61,7 +61,6 @@ public class ContextUtills {
 
     public static String getMessage(String key) {
         return ResourceBundle.getBundle(resourceBundleName, getLocale()).getString(key);
-//        return messageSource.getMessage(key, null, getLocale());
     }
 
     public static void setKey(String encryptionKey)

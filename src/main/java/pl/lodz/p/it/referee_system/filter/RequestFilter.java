@@ -34,11 +34,8 @@ public class RequestFilter extends OncePerRequestFilter {
 
 
             if(authorizationHeader != null && authorizationHeader.startsWith("Bearer ")){
-                //mozna zrezygnowac z uzywania bazy i z tokena wyciagac wszystko i sprawdzac tylko date wygasniecia
 
-//            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(jwtUtil.extractUsername(authorizationHeader.substring(7)));
-//                if (jwtUtil.validateToken(jwt, userDetails)) {
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
                 usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
@@ -50,7 +47,6 @@ public class RequestFilter extends OncePerRequestFilter {
         }
         catch(ExpiredJwtException ex){
             httpServletResponse.setStatus(401);
-//            httpServletResponse.sendError(401);
         }
         catch(Exception ex){
             httpServletResponse.setStatus(403);

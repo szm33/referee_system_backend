@@ -59,7 +59,6 @@ public class TokenUtills {
 
     public boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
-//        return (username.equals((userDetails.getUsername())));
         return (username.equals((userDetails.getUsername())) && !isTokenExpired(token));
     }
 }

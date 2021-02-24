@@ -24,7 +24,7 @@ public interface RefereeRepository extends JpaRepository<Referee, Long> {
     @Query("SELECT r from Referee r where r.id not in" +
             " (SELECT rf.referee.id from RefereeFunctionOnMatch rf where rf.match.dateOfMatch = :date) " +
             "AND r.id not in (SELECT candidates.refereeForReplacement.id FROM ReplacementCandidate candidates" +
-            " where candidates.replaceInformations.refereeFunctionOnMatch.match.dateOfMatch = :date) ")
+            " where candidates.replacementInformation.refereeFunctionOnMatch.match.dateOfMatch = :date) ")
     List<Referee> findAllFreeReferees(@Param("date") LocalDate date);
 
     Optional<Referee> findByAccount_Username(String username);

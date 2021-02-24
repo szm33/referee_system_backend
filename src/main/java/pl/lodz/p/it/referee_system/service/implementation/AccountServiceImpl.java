@@ -34,6 +34,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Service
 @Transactional(propagation = Propagation.REQUIRES_NEW, isolation = Isolation.READ_COMMITTED)
@@ -84,7 +86,6 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Account getMyAccount() {
-        //wyciagamy z tokena user name i bierzemy konto po loginie
         return this.accountRepository.findAccountByUsername(ContextUtills.getUsername()).orElseThrow();
     }
 
@@ -118,7 +119,6 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public void sendResetLink(String username) {
         accountRepository.findAccountByUsername(username).ifPresent(data -> {
-            //tworzenie linku zapis do bazy
             String token = String.valueOf(new Date().getTime());
             String link = ContextUtills.createResetLink(token);
             data.setResetLink(token);
@@ -171,7 +171,13 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public void logout(Token token) {
-        tokenRepository.deleteByRefreshToken(token.getRefreshToken());
+        try {
+            tokenRepository.deleteByRefreshToken(token.getRefreshToken());
+        }
+        catch (Exception e) {
+            Logger.getGlobal().log(Level.SEVERE, token.getRefreshToken() != null ?
+                    "Failed deleting token " + token.getRefreshToken() : "Failed deleting token");
+        }
     }
 
     @Override

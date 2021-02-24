@@ -3,18 +3,9 @@ package pl.lodz.p.it.referee_system.utill;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import pl.lodz.p.it.referee_system.entity.ReplaceInformations;
-import pl.lodz.p.it.referee_system.repository.ReplaceInformationsRepository;
+import pl.lodz.p.it.referee_system.entity.ReplacementInformation;
 import pl.lodz.p.it.referee_system.service.MatchService;
 
-import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 @Service
 public class MyTaskScheduler {
@@ -22,16 +13,12 @@ public class MyTaskScheduler {
     @Autowired
     private MatchService matchService;
 
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(fixedDelayString = "${delay.between.replacement.check}")
     public void print() {
-        for(ReplaceInformations replaceInformation: matchService.getAllReplaceInformationsForScheduler()
+        for(ReplacementInformation replaceInformation: matchService.getAllReplaceInformationsForScheduler()
             ){
-            LocalDateTime now = LocalDateTime.now();
-            if (replaceInformation.getExecuteTime().isBefore(now)) {
                 //inicjalizacja zastapienia
                 matchService.replaceReferee(replaceInformation);
-                Logger.getGlobal().log(Level.SEVERE, replaceInformation.getExecuteTime().toString());
-            }
         }
     }
 }

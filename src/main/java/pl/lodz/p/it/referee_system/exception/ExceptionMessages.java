@@ -20,6 +20,7 @@ public class ExceptionMessages {
     public static final String SERIALIZABLE_ERROR = "error.serializable";
     public static final String MATCH_FUNCTIONS_ERROR = "error.match.functions";
     public static final String INIT_REPLACEMENT_ERROR = "error.init.replacement";
+    public static final String INIT_REPLACEMENT_REFEREE_MATCH_ERROR = "error.init.replacement.referee.match";
     public static final String INIT_REPLACEMENT_TIME_ERROR = "error.init.replacement.time";
     public static final String REPLACEMENT_NOT_EXIST_ERROR = "error.replacement.not.exist";
 
@@ -42,6 +43,7 @@ public class ExceptionMessages {
         exceptionMessages.add(MATCH_FUNCTIONS_ERROR);
         exceptionMessages.add(INIT_REPLACEMENT_ERROR);
         exceptionMessages.add(INIT_REPLACEMENT_TIME_ERROR);
+        exceptionMessages.add(INIT_REPLACEMENT_REFEREE_MATCH_ERROR);
         exceptionMessages.add(REPLACEMENT_NOT_EXIST_ERROR);
     }
 }

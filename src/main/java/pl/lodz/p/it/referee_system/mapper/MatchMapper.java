@@ -18,7 +18,7 @@ public class MatchMapper {
         match.setId(matchDTO.getId());
         match.setDescription(matchDTO.getDescription());
         match.setDateOfMatch(matchDTO.getDateOfMatch());
-        match.setVersion(ContextUtills.decrypt(matchDTO.getVersion()));
+        match.setVersion(matchDTO.getVersion() != null ? ContextUtills.decrypt(matchDTO.getVersion()) : 0);
         String[] time = matchDTO.getTimeOfMatch().split(":");
         match.setMatchTime(LocalTime.of(Integer.valueOf(time[0]),Integer.valueOf(time[1])));
         Team homeTeam = new Team();
@@ -48,23 +48,5 @@ public class MatchMapper {
 
     public static Match map(MatchToEditDTO matchDTO) {
         return MatchMapper.map(matchDTO.getMatch());
-//        Match match = new Match();
-//        match.setId(matchDTO.getId());
-//        match.setVersion(ContextUtills.decrypt(matchDTO.getVersion()));
-//        match.setDescription(matchDTO.getDescription());
-//        match.setDateOfMatch(matchDTO.getDateOfMatch());
-//        String[] time = matchDTO.getTimeOfMatch().split(":");
-//        match.setMatchTime(LocalTime.of(Integer.valueOf(time[0]),Integer.valueOf(time[1])));
-//        match.setReferees(matchDTO.getReferees().stream().map(freeRefereeDTO -> {
-//            RefereeFunctionOnMatch refereeFunctionOnMatch = new RefereeFunctionOnMatch();
-//            MatchFunction function = new MatchFunction();
-//            function.setFunctionName(freeRefereeDTO.getFunction());
-//            refereeFunctionOnMatch.setMatchFunction(function);
-//            Referee referee = new Referee();
-//            referee.setId(freeRefereeDTO.getId());
-//            refereeFunctionOnMatch.setReferee(referee);
-//            return refereeFunctionOnMatch;
-//        }).collect(Collectors.toList()));
-//        return match;
     }
 }

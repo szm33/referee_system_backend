@@ -5,12 +5,12 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class ReplaceInformationsSender extends Thread {
+public class ReplacementInformationSender extends Thread {
 
     private String link;
     private List<String> recipients;
 
-    public ReplaceInformationsSender(List<String> recipients, String link) {
+    public ReplacementInformationSender(List<String> recipients, String link) {
         this.recipients = recipients;
         this.link = link;
     }

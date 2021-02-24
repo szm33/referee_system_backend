@@ -26,7 +26,7 @@ public class RefereeFunctionOnMatch {
     @JoinColumn(name = "match_id", referencedColumnName = "id")
     private Match match;
     @OneToOne(mappedBy = "refereeFunctionOnMatch", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-    private ReplaceInformations replaceInformations;
+    private ReplacementInformation replacementInformation;
     @Version
     @Column(nullable = false)
     private long version;

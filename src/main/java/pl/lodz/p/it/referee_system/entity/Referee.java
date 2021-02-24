@@ -40,8 +40,4 @@ public class Referee {
     @Version
     @Column(nullable = false)
     private long version;
-
-
-
-
 }

@@ -51,7 +51,6 @@ public class RefereeController {
     public ResponseEntity<RefereeDTO> getReferee(@PathVariable("id") Long id) {
         return ResponseEntity.ok(new RefereeDTO(refereeService.getReferee(id)));
     }
-    //dostepna jednie dla admina
 
     @PutMapping
     @Secured("ROLE_ADMIN")

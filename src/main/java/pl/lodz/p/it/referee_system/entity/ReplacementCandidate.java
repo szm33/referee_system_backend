@@ -24,8 +24,8 @@ public class ReplacementCandidate {
     @Column(nullable = false)
     private Long arrivalTime;
     @ManyToOne
-    @JoinColumn(name = "replecment_informations_id", referencedColumnName = "id")
-    private ReplaceInformations replaceInformations;
+    @JoinColumn(name = "replecment_information_id", referencedColumnName = "id")
+    private ReplacementInformation replacementInformation;
     @Version
     @Column(nullable = false)
     private Long version;
